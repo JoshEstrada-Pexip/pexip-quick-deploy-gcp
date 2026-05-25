@@ -1,0 +1,41 @@
+
+================================================================================
+  Pexip Quick Deploy - ready to go
+================================================================================
+
+  This Cloud Shell session is set up to deploy Pexip Infinity into your
+  GCP project.
+
+  To start, run the setup script:
+
+      ./scripts/setup.sh
+
+  You will be prompted to select a deployment mode:
+
+    • Simple Mode (Recommended):
+      Auto-configures everything with secure defaults.
+      (Region: us-west1, generated admin password, 1 conferencing node,
+       and self-signed TLS certs).
+
+    • Simple - Licensed/TLS Mode:
+      The quickest method to deploy Infinity end-to-end—fully licensed,
+      fully secured with real CA Let's Encrypt certificates, and ready
+      to place a secure SIP TLS call upon completion. Uses all Simple
+      mode defaults but prompts for license key and Cloudflare token.
+
+    • Advanced Mode:
+      Prompts you to customize your configuration:
+        - GCP region and zone
+        - Admin-access CIDR (restricting Pexip Admin UI access)
+        - Number of Conferencing Nodes
+        - Custom Admin UI password (8+ chars) & contact email
+        - Image versions (auto-detected, default is latest v40)
+        - Let's Encrypt + Cloudflare trusted TLS setup
+
+  Terraform then handles the rest end-to-end (~8-12 minutes). When it
+  finishes, log in to the Management Node admin UI in your browser - no
+  SSH required.
+
+  The tutorial pane on the right has more detail.
+
+================================================================================

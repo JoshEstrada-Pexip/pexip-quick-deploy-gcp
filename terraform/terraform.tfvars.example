@@ -1,0 +1,63 @@
+# Copy to terraform.tfvars and fill in, or just run ./scripts/setup.sh from
+# the repo root and it'll generate one for you.
+
+project_id              = "your-gcp-project-id"
+region                  = "us-west1"
+management_access_cidrs = ["0.0.0.0/0"] # tighten to your office/VPN CIDR
+transcoding_node_count  = 1
+
+# Optional scaling levers (defaults are sensible for a one-click demo).
+# Uncomment to spread conf nodes across zones in the chosen region. With
+# this set and transcoding_node_count = 3, you get nodes in -a, -b, -c.
+# transcoding_zones = ["a", "b", "c"]
+#
+# Set false for a private deployment: conf nodes will only have internal
+# IPs, reachable via Cloud VPN / IAP. Manager still has a public IP so
+# the Cloud Shell deploy can poll its admin URL.
+# conf_nodes_public = true
+
+# Password set on the Management Node for both the admin UI (username "admin")
+# and the OS-level admin account. Minimum 8 characters.
+pexip_admin_password = "change-me-please"
+
+# Contact email Pexip stores with the deployment. Doesn't need to be valid.
+pexip_contact_email = "admin@example.com"
+
+# ----------------------------------------------------------------------------
+# Pexip images
+# ----------------------------------------------------------------------------
+# Pexip publishes images in the public `pexip-product-images` GCP project.
+# This stack copies them into your project automatically. To find the
+# current image names:
+#
+#   gcloud compute images list --project pexip-product-images \
+#     --filter="name~^pexip-infinity-(mgmt|conf)-node-" \
+#     --sort-by="~creationTimestamp" --limit=10
+#
+pexip_management_source_image   = "pexip-infinity-mgmt-node-39-1-0-83067-0-0"
+pexip_conferencing_source_image = "pexip-infinity-conf-node-39-1-0-83067-0-0"
+
+# ----------------------------------------------------------------------------
+# TLS / ACME (optional)
+# ----------------------------------------------------------------------------
+# Default is self-signed (browsers will warn, no domain required). Flip
+# enable_acme = true if you have a Cloudflare-hosted domain plus an API
+# token with Zone.DNS:Edit on that zone. Create the token at
+#   https://dash.cloudflare.com/profile/api-tokens
+#
+# Keep acme_use_production = false for your first apply: that uses Let's
+# Encrypt's STAGING environment (cert root not in browser trust store, but
+# generous rate limits while you debug). Re-apply with true after one
+# clean end-to-end deploy to get a browser-trusted production cert.
+# LE production limits 5 duplicate certs per domain per week.
+#
+# The DNS-01 challenge only needs the zone to be on Cloudflare. The A
+# records for each Pexip node are something YOU create after apply,
+# pointing at the IPs in the terraform `dns_records_required` output.
+enable_acme               = false
+acme_use_production       = false
+acme_domain               = ""        # e.g. "demo.example.com"
+acme_manager_hostname     = "pexip-mgr"
+acme_conf_hostname_prefix = "pexip-conf"
+acme_email                = ""        # e.g. "you@example.com"
+cloudflare_api_token      = ""        # NEVER COMMIT - keep in your local terraform.tfvars only

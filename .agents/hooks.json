@@ -1,0 +1,9 @@
+{
+  "gcloud-safety-hook": {
+    "enabled": true,
+    "PreToolUse": {
+      "matcher": "run_command",
+      "command": ".agents/hooks/gcloud-safety-hook.sh"
+    }
+  }
+}

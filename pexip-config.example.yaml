@@ -1,0 +1,151 @@
+# Pexip Infinity Stage 2 Configuration File
+# ----------------------------------------------------------------------------
+# Copy this file to pexip-config.yaml:
+#   cp pexip-config.example.yaml pexip-config.yaml
+#
+# Customize the settings below, then run the configuration sync tool:
+#   ./scripts/configure-platform.sh
+# ----------------------------------------------------------------------------
+
+# 1. Pexip License Key (Entitlement Key)
+# Request a free 30-day trial license at https://www.pexip.com/start-trial
+# Once obtained, paste your entitlement key here. Leave empty if already applied.
+license_key: ""
+
+# 2. Virtual Meeting Rooms (VMRs)
+# Each room represents a persistent space that multiple users can dial into.
+vmrs:
+  - name: "Engineering Collaboration"
+    description: "Daily Standups & Engineering Syncs"
+    tag: "engineering"
+    allow_guests: true
+    # PINs can be numeric strings. Leave empty/commented if no PIN is required.
+    pin: "123456"
+    guest_pin: "567890"
+    # Layout views for hosts and guests (e.g. one_main_zero_pips, four_mains_zero_pips, etc.)
+    host_view: "one_main_seven_pips"
+    guest_view: "one_main_seven_pips"
+    # Dial aliases pointing to this VMR. These must be globally unique.
+    aliases:
+      - "eng.sync@pexip.local"
+      - "eng@pexip.local"
+      - "7001"
+
+  - name: "Company All Hands"
+    description: "Monthly executive updates and Q&A"
+    tag: "corporate"
+    allow_guests: true
+    pin: "999999"
+    host_view: "four_mains_zero_pips"
+    guest_view: "one_main_zero_pips"
+    aliases:
+      - "allhands@pexip.local"
+      - "7000"
+
+# 3. Gateway Routing Rules (Dial Plan)
+# Rules are evaluated in ascending priority order. First regex match wins.
+# Priorities are structured with gaps (e.g., 10, 24, 40...) to allow inserting rules later.
+gateway_rules:
+  - name: "Dial registered endpoints by alias"
+    description: "Allows point-to-point calling between registered devices"
+    priority: 10
+    enable: true
+    match_string: "^.+@yourdomain\\.com$"
+    replace_string: ""
+    outgoing_protocol: "sip"
+    called_device_type: "registration"
+    crypto_mode: "besteffort"
+
+  - name: "PSTN Gateway (Twilio)"
+    description: "Outbound US PSTN routing via Twilio SIP trunk"
+    priority: 24
+    enable: true
+    match_string: "^(1[2-9][0-9]{9})(@pex-edge1\\.yourdomain\\.com)?$"
+    replace_string: "\\1@pexip-service-byoc.pstn.twilio.com"
+    outgoing_protocol: "sip"
+    called_device_type: "external"
+    crypto_mode: "besteffort"
+
+  - name: "Teams Registered"
+    description: "Routes SIP room callers to Microsoft Teams CVI"
+    priority: 40
+    enable: true
+    match_string: "^(\\d{9,13})(@yourdomain\\.com)?$"
+    replace_string: "\\1"
+    outgoing_protocol: "sip"
+    called_device_type: "external"
+    crypto_mode: "besteffort"
+
+  - name: "Teams Guest"
+    description: "Connects guests directly into Microsoft Teams conference"
+    priority: 42
+    enable: true
+    match_string: "^(\\d{9,13})(@yourdomain\\.com)$"
+    replace_string: "\\1"
+    outgoing_protocol: "teams"
+    called_device_type: "teams_conference"
+    crypto_mode: "besteffort"
+
+  - name: "Allow VP to Poly RC"
+    description: "Allows Virtual Participant dial out prefix for Poly RealConnect"
+    priority: 152
+    enable: true
+    match_string: "(?i)^t(.+)@yourdomain\\.com$"
+    replace_string: "\\1@t.plcm.vc"
+    outgoing_protocol: "sip"
+    called_device_type: "external"
+    crypto_mode: "besteffort"
+
+  - name: "Dial endpoints by IP address"
+    description: "Allows dialing endpoints directly by their IPv4 address"
+    priority: 180
+    enable: true
+    match_string: "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$"
+    replace_string: ""
+    outgoing_protocol: "sip"
+    called_device_type: "external"
+    crypto_mode: "besteffort"
+
+  - name: "Dial to external address"
+    description: "Catch-all B2B outbound dialing for non-local domains"
+    priority: 200
+    enable: true
+    match_string: "^(?!.*@yourdomain\\.com$).*$"
+    replace_string: ""
+    outgoing_protocol: "sip"
+    called_device_type: "external"
+    crypto_mode: "besteffort"
+
+# 4. End Users
+# Directory entries used for address-book search, VMR ownership, and authentication.
+users:
+  - primary_email_address: "john.doe@pexip.local"
+    first_name: "John"
+    last_name: "Doe"
+    display_name: "John Doe"
+    telephone_number: "+15550100"
+    department: "Engineering"
+
+  - primary_email_address: "jane.smith@pexip.local"
+    first_name: "Jane"
+    last_name: "Smith"
+    display_name: "Jane Smith"
+    department: "Operations"
+
+# 5. Device Aliases
+# Registers individual hardware endpoints or Pexip Connect apps to the platform.
+device_aliases:
+  - device_alias: "lobby-h323@pexip.local"
+    device_description: "Lobby Room System"
+    device_username: "lobby_user"
+    device_password: "SecureDevicePassword123!"
+    device_tag: "lobby"
+    primary_owner_email_address: "jane.smith@pexip.local"
+
+  - device_alias: "boardroom@pexip.local"
+    device_description: "HQ Boardroom Room System"
+    device_username: "boardroom_user"
+    device_password: "HQBoardroomPassword456!"
+    device_tag: "boardroom"
+    primary_owner_email_address: "john.doe@pexip.local"
+
