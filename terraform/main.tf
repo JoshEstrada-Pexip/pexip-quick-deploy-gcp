@@ -32,8 +32,8 @@ locals {
   # Nodes can spread across zones if var.transcoding_zones is set; otherwise
   # they default to the Manager's zone.
   zone             = "${var.region}-${var.zone_letter}"
-  manager_hostname = "pexip-mgr"
-  conf_hostname    = "pexip-conf"
+  manager_hostname = var.enable_acme ? var.acme_manager_hostname : "pexip-mgr"
+  conf_hostname    = var.enable_acme ? var.acme_conf_hostname_prefix : "pexip-conf"
   # GCP routes everything through the gateway, so the VM sees a /32.
   pexip_netmask = "255.255.255.255"
 
