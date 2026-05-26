@@ -229,7 +229,8 @@ if [[ -n "$CONF_FQDNS_CSV" && -n "$CONF_CERT_PEM" ]]; then
   echo "==> Assigning Conferencing-Node cert..." >&2
   IFS=',' read -ra fqdns <<<"$CONF_FQDNS_CSV"
   for i in "${!fqdns[@]}"; do
-    node_name="pexip-conf-$((i + 1))"
+    fqdn="${fqdns[i]}"
+    node_name="${fqdn%%.*}"
     conf_patch="$(jq -nc --arg t "$conf_tls_uri" '{tls_certificate:$t}')"
     assign_cert worker_vm "$node_name" "$conf_patch"
   done
