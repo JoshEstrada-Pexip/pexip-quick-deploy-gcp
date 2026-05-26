@@ -22,8 +22,8 @@ output "tls_status" {
   description = "Which TLS cert this deployment is using. Read this before opening the admin UI - if it says STAGING you'll still see a browser warning."
   value = var.enable_acme ? (
     var.acme_use_production
-      ? "Let's Encrypt PRODUCTION cert installed (trusted by browsers)"
-      : "Let's Encrypt STAGING cert installed - UNTRUSTED by browsers. Set acme_use_production=true and re-apply once you've verified the pipeline works."
+    ? "Let's Encrypt PRODUCTION cert installed (trusted by browsers)"
+    : "Let's Encrypt STAGING cert installed - UNTRUSTED by browsers. Set acme_use_production=true and re-apply once you've verified the pipeline works."
   ) : "Self-signed cert (default). Browsers will warn; accept the warning to proceed."
 }
 

@@ -62,7 +62,7 @@ nano pexip-config.yaml
 
 Keep these commands handy if you need to manage your deployment or if your Cloud Shell session gets disconnected:
 
-### 🔄 If your session disconnected (How to get back)
+### If your session disconnected (How to get back)
 If you walked away and the container recycled, locate your original deployment folder containing your active `terraform.tfstate` file:
 
 ```bash
@@ -74,13 +74,13 @@ for d in ~/cloudshell_open/pexip-quick-deploy*/; do [[ -f "$d/terraform/terrafor
 cd ~/cloudshell_open/pexip-quick-deploy-X
 ```
 
-### 🗑️ How to Teardown/Clean Destroy
+### How to Teardown/Clean Destroy
 To safely destroy all resources and **automatically return/deactivate your licenses** to prevent locking them:
 ```bash
 ./scripts/destroy.sh
 ```
 
-### 💥 How to Force Nuke
+### How to Force Nuke
 If your local state file is lost/corrupted and you need to force-wipe all GCP resources matching the stack naming convention:
 ```bash
 ./scripts/nuke.sh <walkthrough-project-id/>

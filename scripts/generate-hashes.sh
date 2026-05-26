@@ -59,7 +59,7 @@ def sha512_crypt(password):
     # truncated 13-char hash like $6xxxxxxxxxxxx that the Manager will
     # silently reject. Detect that and fall back to passlib or openssl.
     salt = alnum_salt(16)
-    
+
     # 1. Try python built-in crypt (only on Linux where it supports sha512)
     if crypt is not None and hasattr(crypt, "crypt"):
         config = "$6$rounds=5000${0}$".format(salt)

@@ -42,7 +42,7 @@ run_test() {
   local test_name="$1"
   local tool_input_command="$2"
   local expect_deny="$3"
-  
+
   # Format tool call context JSON input
   local input_json
   input_json=$(jq -n --arg cmd "$tool_input_command" '{
@@ -51,17 +51,17 @@ run_test() {
       command: $cmd
     }
   }')
-  
+
   # Execute hook script and capture exit code
   local output
   local rc=0
   output=$(echo "$input_json" | "$HOOK_SCRIPT" 2>/dev/null) || rc=$?
-  
+
   local is_denied=false
   if [[ $rc -eq 2 ]] && [[ -n "$output" ]] && echo "$output" | jq -e '.decision == "deny"' >/dev/null 2>&1; then
     is_denied=true
   fi
-  
+
   if [[ "$expect_deny" == "true" ]]; then
     if [[ "$is_denied" == "true" ]]; then
       echo -e "  [${GREEN}PASS${RESET}] $test_name (correctly blocked with exit code 2)"

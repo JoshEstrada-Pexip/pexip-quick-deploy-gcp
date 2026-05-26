@@ -32,16 +32,16 @@ if [[ "$IS_DESTRUCTIVE" == "true" ]]; then
   REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
   CONFIG_FILE="${CONFIG_FILE:-${REPO_ROOT}/pexip-config.yaml}"
   TFVARS_FILE="${TFVARS_FILE:-${REPO_ROOT}/terraform/terraform.tfvars}"
-  
+
   LICENSE_ACTIVE=false
   LICENSE_KEY=""
-  
+
   # Check if a license key is configured in pexip-config.yaml
   if [[ -f "$CONFIG_FILE" ]]; then
     # Extract license_key using grep/awk/tr
     LICENSE_KEY=$(grep -E '^\s*license_key\s*:' "$CONFIG_FILE" | awk -F: '{print $2}' | tr -d ' "' | tr -d "'" || true)
   fi
-  
+
   # Check if a license key is configured in terraform.tfvars
   if [[ -z "$LICENSE_KEY" && -f "$TFVARS_FILE" ]]; then
     LICENSE_KEY=$(grep -E 'license_key' "$TFVARS_FILE" || true)
@@ -56,11 +56,11 @@ if [[ "$IS_DESTRUCTIVE" == "true" ]]; then
   PROJ_ID=""
   # Extract project ID from arguments
   PROJ_ID=$(echo "$COMMAND" | grep -oE '\-\-project[ =][^ ]+' | sed -E 's/\-\-project[ =]//' || true)
-  
+
   if [[ -z "$PROJ_ID" && -f "$TFVARS_FILE" ]]; then
     PROJ_ID=$(grep -E '^\s*project_id\s*=' "$TFVARS_FILE" | sed -E 's/^\s*project_id\s*=\s*["'\'']?([^"'\''\s]*)["'\'']?/\1/' || true)
   fi
-  
+
   if [[ -z "$PROJ_ID" ]]; then
     PROJ_ID=$(gcloud config get-value project 2>/dev/null || true)
   fi

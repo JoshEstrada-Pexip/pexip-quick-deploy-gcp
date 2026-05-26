@@ -65,7 +65,7 @@ STATE = {
         {
             "id": 1,
             "name": "Primary Location",
-            "resource_uri": "/api/admin/configuration/v1/system_location/1/"
+            "resource_uri": "/api/admin/configuration/v1/system_location/1/",
         }
     ],
     "licence": [],
@@ -129,6 +129,7 @@ def parse_subject_cn_from_pem(pem):
     or parsing failed - the mock falls back to a placeholder."""
     import re
     import subprocess
+
     try:
         result = subprocess.run(
             ["openssl", "x509", "-noout", "-subject"],
@@ -164,7 +165,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             return None
         try:
-            decoded = base64.b64decode(h[len("Basic "):]).decode("utf-8")
+            decoded = base64.b64decode(h[len("Basic ") :]).decode("utf-8")
         except Exception:
             self.send_response(401)
             self.end_headers()
@@ -198,7 +199,7 @@ class Handler(BaseHTTPRequestHandler):
 
         if not path.startswith(API_PREFIX + "/"):
             return None, None, query
-        rest = path[len(API_PREFIX) + 1:].strip("/")
+        rest = path[len(API_PREFIX) + 1 :].strip("/")
         parts = rest.split("/")
         if not parts:
             return None, None, query
@@ -215,7 +216,9 @@ class Handler(BaseHTTPRequestHandler):
         """True if the current request path is the certificates_import endpoint.
         Match the path part only - ignore query string."""
         parsed = urlparse(self.path)
-        return parsed.path.rstrip("/") == f"{COMMAND_PREFIX}/platform/certificates_import"
+        return (
+            parsed.path.rstrip("/") == f"{COMMAND_PREFIX}/platform/certificates_import"
+        )
 
     # ---- GET ---------------------------------------------------------------
     def do_GET(self):
@@ -231,14 +234,24 @@ class Handler(BaseHTTPRequestHandler):
         items = STATE[kind]
 
         # Filter by name, address, primary_email_address, alias, device_alias, or service_type if present.
-        for filt in ("name", "address", "primary_email_address", "alias", "device_alias", "service_type"):
+        for filt in (
+            "name",
+            "address",
+            "primary_email_address",
+            "alias",
+            "device_alias",
+            "service_type",
+        ):
             if filt in query:
                 items = [o for o in items if str(o.get(filt)) == str(query[filt])]
 
-        return self._json(200, {
-            "meta": {"total_count": len(items)},
-            "objects": items,
-        })
+        return self._json(
+            200,
+            {
+                "meta": {"total_count": len(items)},
+                "objects": items,
+            },
+        )
 
     # ---- POST --------------------------------------------------------------
     def do_POST(self):
@@ -257,17 +270,27 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(400, {"error_message": "invalid JSON"})
             bundle = payload.get("bundle", "")
             if not bundle or "BEGIN CERTIFICATE" not in bundle:
-                return self._json(400, {"error_message": "bundle must contain at least one CERTIFICATE"})
+                return self._json(
+                    400,
+                    {"error_message": "bundle must contain at least one CERTIFICATE"},
+                )
             if "BEGIN" not in bundle.replace("BEGIN CERTIFICATE", ""):
-                return self._json(400, {"error_message": "bundle must contain a private key"})
+                return self._json(
+                    400, {"error_message": "bundle must contain a private key"}
+                )
             # Parse the leaf cert's CN to use as subject_name.
             # The bundle layout is: leaf, chain, key (concatenated).
             leaf_start = bundle.find("-----BEGIN CERTIFICATE-----")
             leaf_end = bundle.find("-----END CERTIFICATE-----", leaf_start)
             if leaf_start < 0 or leaf_end < 0:
-                return self._json(400, {"error_message": "could not parse leaf certificate"})
-            leaf_pem = bundle[leaf_start:leaf_end + len("-----END CERTIFICATE-----")]
-            subject = parse_subject_cn_from_pem(leaf_pem) or f"imported-cert-{STATE['_next_id']['tls_certificate']}"
+                return self._json(
+                    400, {"error_message": "could not parse leaf certificate"}
+                )
+            leaf_pem = bundle[leaf_start : leaf_end + len("-----END CERTIFICATE-----")]
+            subject = (
+                parse_subject_cn_from_pem(leaf_pem)
+                or f"imported-cert-{STATE['_next_id']['tls_certificate']}"
+            )
 
             new_id = next_id("tls_certificate")
             obj = {
@@ -350,10 +373,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8443)
     parser.add_argument("--recordings-dir", default="/tmp/mock-pexip")
-    parser.add_argument("--state-file", default=None,
-                        help="Optional JSON file to seed STATE from")
-    parser.add_argument("--cert", default=None,
-                        help="TLS cert PEM (for HTTPS). If omitted, runs HTTP.")
+    parser.add_argument(
+        "--state-file", default=None, help="Optional JSON file to seed STATE from"
+    )
+    parser.add_argument(
+        "--cert", default=None, help="TLS cert PEM (for HTTPS). If omitted, runs HTTP."
+    )
     parser.add_argument("--key", default=None, help="TLS key PEM (for HTTPS).")
     args = parser.parse_args()
 

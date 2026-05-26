@@ -4,9 +4,9 @@
 
 Deploying [Pexip Infinity](https://docs.pexip.com/admin/admin_intro.htm) can be a complex task. This project aims to simplify that by providing a ""couple-of-clicks" deployment method on Google Cloud Platform (GCP) using the built-in cloud shell. This tool handles copying the GCP images and bootstrapping the Management and Conference Nodes, avoiding the need to SSH and run the initial CLI installer. It will also provide the option to run a secondary script that provisions the platform with a "base configuration". Allowing for secure SIP calling out-of-the-box.
 
-NOTES: 
+NOTES:
 
-* This tool is a community tool, not licensed nor officially provided by Pexip. It has been modifeid to use modules from the [official Terraform Pexip Provider](https://registry.terraform.io/providers/pexip/pexip/latest/docs).
+* This tool is a community tool, not licensed nor officially provided by Pexip. It has been modified to use modules from the [official Terraform Pexip Provider](https://registry.terraform.io/providers/pexip/pexip/latest/docs).
 * It uses the latest [official Pexip published GCP images](https://docs.pexip.com/admin/gcp_disk_images.htm#obtain) which are v.40 at the time of publishing this. Image names/versions can be easily modified inside the terraform.tfvars file.
 
 ---
@@ -46,6 +46,8 @@ NOTES:
 
 Click the **Open in Cloud Shell** badge above. This clones the repository and starts the guided walkthrough tutorial.
 
+![Cloud Shell Setup Wizard](images/cloudshell.png)
+
 ### 2. Run the Deployment
 
 Run the setup script [setup.sh](scripts/setup.sh) by executing:
@@ -61,6 +63,8 @@ Select one of the following deployment modes in the wizard:
   - **Pexip License Key**: Activates your trial or production entitlement.
   - **TLS Certificate Info**: Automatically provisions browser-trusted Let's Encrypt certificates using a Cloudflare-managed domain and API token.
 * **Advanced**: Provides full interactive control to customize the GCP region, machine sizing, instance counts, admin access IP restrictions, password credentials, and optional custom image overrides or TLS config.
+
+![Advanced Setup Mode](images/cloudshell2.png)
 
 ### 3. Access the Admin UI
 
@@ -244,7 +248,7 @@ Change directory into that folder and run [destroy.sh](scripts/destroy.sh) or [s
 | Remote state backend      | Local only               | Yes                           |
 | Backup Manager (HA)       | No                       | Yes                           |
 
-If you need enterprise-grade architectures, use the [terraform-google-pexip-infinity](https://github.com/Josh-E-S/terraform-google-pexip-infinity) module instead.
+If you need enterprise-grade architectures, use the official Terraform Pexip Provider and the [terraform-google-pexip-infinity](https://github.com/Josh-E-S/terraform-google-pexip-infinity) module instead.
 
 </details>
 

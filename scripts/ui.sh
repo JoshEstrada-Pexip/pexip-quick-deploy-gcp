@@ -65,12 +65,12 @@ ask_input() {
   if [[ -n "$default" ]]; then
     echo -e "  │   ${TEXT_MUTED}Default: ${default}${RESET}" >&2
   fi
-  
+
   # Read user input
   echo -ne "  │   › " >&2
   read -r var || true
   echo -e "  └" >&2
-  
+
   local result="${var:-$default}"
   echo "$result"
 }
@@ -99,7 +99,7 @@ ask_password() {
     if ! IFS= read -r -s -n 1 char; then
       break
     fi
-    
+
     if [[ -z "$char" ]]; then
       break
     fi
@@ -127,7 +127,7 @@ ask_password() {
 
   echo >&2 # Print newline
   echo -e "  └" >&2
-  
+
   echo "$var"
 }
 
@@ -150,7 +150,7 @@ ask_select() {
 
   # Hide cursor
   tput civis >&2 2>/dev/null || echo -ne "\033[?25l" >&2
-  
+
   # Restore cursor on ctrl-c
   trap 'tput cnorm >&2 2>/dev/null || echo -ne "\033[?25h" >&2; exit 130' INT TERM
 
@@ -170,7 +170,7 @@ ask_select() {
     if ! read -r -s -n1 key; then
       break
     fi
-    
+
     # Escape sequence parsing (supports vt100 [A/[B and application OA/OB)
     if [[ "$key" == $'\x1b' ]]; then
       if ! read -r -s -n2 -t "$READ_TIMEOUT" key; then
@@ -213,7 +213,7 @@ ask_confirm() {
 
   local selected
   selected="$(ask_select "$prompt" "$default_idx" "${options[@]}")"
-  
+
   if [[ "$selected" -eq 0 ]]; then
     return 0
   else
@@ -239,29 +239,29 @@ print_error_banner() {
   local title="$1"
   local detail="$2"
   local border_color="${3:-$TEXT_RED}"
-  
+
   local max_w=52
   local len_title=$((${#title}))
   local len_detail=$((${#detail}))
-  
+
   for len in $len_title $len_detail; do
     if [[ $len -gt $max_w ]]; then
       max_w=$len
     fi
   done
-  
+
   local border_top="┌$(print_chars '─' $((max_w + 4)))┐"
   local border_mid="├$(print_chars '─' $((max_w + 4)))┤"
   local border_bot="└$(print_chars '─' $((max_w + 4)))┘"
-  
+
   echo
   echo -e "  ${border_color}${border_top}${RESET}"
-  
+
   # Title line
   local pad_title=$((max_w - len_title))
   local spaces_t; spaces_t=$(print_chars ' ' $pad_title)
   echo -e "  ${border_color}│${RESET}  ${TEXT_BOLD}${title}${RESET}${spaces_t}  ${border_color}│${RESET}"
-  
+
   # Detail line if present
   if [[ -n "$detail" ]]; then
     echo -e "  ${border_color}${border_mid}${RESET}"
@@ -269,7 +269,7 @@ print_error_banner() {
     local spaces_d; spaces_d=$(print_chars ' ' $pad_detail)
     echo -e "  ${border_color}│${RESET}  ${TEXT_MUTED}${detail}${RESET}${spaces_d}  ${border_color}│${RESET}"
   fi
-  
+
   echo -e "  ${border_color}${border_bot}${RESET}"
   echo
 }
@@ -305,7 +305,7 @@ print_credentials_card() {
   local len_user=$((${#label_user} + ${#username}))
   local len_pw=$((${#label_pw} + ${#password}))
   local len_tls=$((${#label_tls} + ${#clean_tls}))
-  
+
   local header_text="🚀  Pexip Infinity Successfully Deployed!"
   local len_header=39 # Approximate visible column width for alignment
 
@@ -328,18 +328,18 @@ print_credentials_card() {
   # Print the card
   echo
   echo -e "  ${TEXT_PURPLE}${border_top}${RESET}"
-  
+
   # Header line (centered)
   local pad_total=$((max_w + 4 - len_header))
   local pad_left=$((pad_total / 2))
   local pad_right=$((pad_total - pad_left))
   [[ $pad_left -lt 1 ]] && pad_left=1
   [[ $pad_right -lt 1 ]] && pad_right=1
-  
+
   local space_l; space_l=$(print_chars ' ' $pad_left)
   local space_r; space_r=$(print_chars ' ' $pad_right)
   echo -e "  ${TEXT_PURPLE}│${RESET}${space_l}${TEXT_BOLD}${header_text}${RESET}${space_r}${TEXT_PURPLE}│${RESET}"
-  
+
   echo -e "  ${TEXT_PURPLE}${border_mid}${RESET}"
 
   # Helper to print a line with correct padding
@@ -356,7 +356,7 @@ print_credentials_card() {
   print_card_line "$label_url" "$TEXT_CYAN" "$url" "$url"
   print_card_line "$label_user" "" "$username" "$username"
   print_card_line "$label_pw" "$TEXT_GREEN" "$password" "$password"
-  
+
   echo -e "  ${TEXT_PURPLE}${border_mid}${RESET}"
   print_card_line "$label_tls" "" "$clean_tls" "$clean_tls"
   echo -e "  ${TEXT_PURPLE}${border_bot}${RESET}"
@@ -413,4 +413,3 @@ funny_progress_loop() {
     sleep 30
   done
 }
-

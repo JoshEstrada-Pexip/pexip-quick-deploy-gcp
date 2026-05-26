@@ -66,7 +66,7 @@ spin() {
 check_orphans() {
   local proj="$1"
   local inst_n net_n sa_n img_n addr_n fw_n
-  
+
   # A local wrapper to count lines returned by a gcloud list command
   count_res() {
     gcloud "$@" --project="$proj" --format='value(name)' 2>/dev/null | grep -c . || true
@@ -361,7 +361,7 @@ else
   license_key="$(ask_password 'Pexip License Key')"
 
   print_next_step "TLS Certificates Setup"
-  
+
   # For Lab mode, we always enable Let's Encrypt/Cloudflare. For Advanced mode, we ask.
   run_acme_setup=false
   if [[ "$mode_lab" == "true" ]]; then
@@ -433,7 +433,7 @@ else
       if [[ "$manage_dns_records" == "true" ]]; then
         echo
         print_info "Checking Cloudflare for existing DNS records matching these hostnames..."
-        
+
         # Run clean-cloudflare-srv.py in check mode
         set +e
         CF_DNS_API_TOKEN="$cloudflare_api_token" \
@@ -444,7 +444,7 @@ else
         python3 "${REPO_ROOT}/scripts/clean-cloudflare-srv.py" --check
         check_status=$?
         set -e
-        
+
         if [[ $check_status -eq 2 ]]; then
           echo
           print_warning "⚠️  Warning: Conflicting/existing DNS records were found in Cloudflare."
@@ -455,7 +455,7 @@ else
             "Abort setup"
           )
           conflict_selected=$(ask_select "Select Action" 0 "${conflict_options[@]}")
-          
+
           if [[ $conflict_selected -eq 0 ]]; then
             echo
             print_info "Purging conflicting Cloudflare DNS records..."
@@ -572,13 +572,13 @@ if os.path.exists(yaml_path):
         if not match or not match.group(1).strip():
             # Existing key is empty or not set, so write an empty string
             content = re.sub(r"^(\s*license_key\s*:)\s*.*$", lambda m: f"{m.group(1)} \"\"", content, flags=re.MULTILINE)
-    
+
     # Replace domains dynamically
     if domain:
         content = content.replace("yourdomain.com", domain)
         content = content.replace("yourdomain\\\\.com", domain.replace(".", "\\\\."))
         content = content.replace("pexip.local", domain)
-        
+
     with open(yaml_path, "w", encoding="utf-8") as f:
         f.write(content)
 '

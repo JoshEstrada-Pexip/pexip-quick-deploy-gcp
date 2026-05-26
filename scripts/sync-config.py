@@ -16,8 +16,12 @@ try:
     import yaml
     import requests
 except ImportError:
-    print("\033[91mError: Required Python packages 'requests' or 'pyyaml' are not installed.\033[0m")
-    print("Please run this script via './scripts/configure-platform.sh' to install dependencies automatically.")
+    print(
+        "\033[91mError: Required Python packages 'requests' or 'pyyaml' are not installed.\033[0m"
+    )
+    print(
+        "Please run this script via './scripts/configure-platform.sh' to install dependencies automatically."
+    )
     sys.exit(1)
 
 # ANSI escape codes for coloring terminal output
@@ -28,20 +32,26 @@ COLOR_CYAN = "\033[96m"
 COLOR_MAGENTA = "\033[95m"
 COLOR_RESET = "\033[0m"
 
+
 def print_success(msg):
     print(f"{COLOR_GREEN}[SUCCESS] {msg}{COLOR_RESET}")
+
 
 def print_info(msg):
     print(f"{COLOR_CYAN}[INFO] {msg}{COLOR_RESET}")
 
+
 def print_update(msg):
     print(f"{COLOR_YELLOW}[UPDATED] {msg}{COLOR_RESET}")
+
 
 def print_skip(msg):
     print(f"{COLOR_MAGENTA}[SKIPPED] {msg}{COLOR_RESET}")
 
+
 def print_error(msg):
     print(f"{COLOR_RED}[ERROR] {msg}{COLOR_RESET}", file=sys.stderr)
+
 
 class PexipConfigurator:
     def __init__(self, host, password, verify_ssl=False):
@@ -49,11 +59,10 @@ class PexipConfigurator:
         self.verify_ssl = verify_ssl
         self.base_url = f"https://{host}/api/admin/configuration/v1"
         self.session = requests.Session()
-        self.session.auth = ('admin', password)
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        })
+        self.session.auth = ("admin", password)
+        self.session.headers.update(
+            {"Content-Type": "application/json", "Accept": "application/json"}
+        )
         self.locations_map = {}
         self.has_errors = False
         self.is_licensed = False
@@ -63,7 +72,12 @@ class PexipConfigurator:
         url = f"{self.base_url}/{endpoint.strip('/')}/"
         try:
             response = self.session.request(
-                method, url, json=json_data, params=params, verify=self.verify_ssl, timeout=15
+                method,
+                url,
+                json=json_data,
+                params=params,
+                verify=self.verify_ssl,
+                timeout=15,
             )
             if response.status_code in (200, 201, 202, 204):
                 return response
@@ -79,10 +93,14 @@ class PexipConfigurator:
                     print_error(f"API returned {response.status_code}: {response.text}")
                 return response
         except requests.exceptions.SSLError as e:
-            print_error(f"SSL verification failed. Try passing --verify-ssl=False or running the script in bypass mode. Error: {e}")
+            print_error(
+                f"SSL verification failed. Try passing --verify-ssl=False or running the script in bypass mode. Error: {e}"
+            )
             sys.exit(1)
         except requests.exceptions.ConnectionError as e:
-            print_error(f"Could not connect to Pexip Management Node at https://{self.host}. Error: {e}")
+            print_error(
+                f"Could not connect to Pexip Management Node at https://{self.host}. Error: {e}"
+            )
             sys.exit(1)
         except Exception as e:
             self.has_errors = True
@@ -108,6 +126,7 @@ class PexipConfigurator:
     def load_licenses(self):
         """Check if the Management Node has any active licenses applied (retrying if needed to allow activation propagation)."""
         import time
+
         print_info("Checking licensing status...")
         for attempt in range(1, 4):
             response = self.request("GET", "licence")
@@ -116,15 +135,21 @@ class PexipConfigurator:
                 licenses = data.get("objects", [])
                 if licenses:
                     self.is_licensed = True
-                    print_success(f"Management Node is licensed (found {len(licenses)} license(s)).")
+                    print_success(
+                        f"Management Node is licensed (found {len(licenses)} license(s))."
+                    )
                     return
                 else:
                     if attempt < 3:
-                        print_info(f"Management Node is unlicensed/trial (attempt {attempt}/3). Retrying in 4 seconds to allow registration to propagate...")
+                        print_info(
+                            f"Management Node is unlicensed/trial (attempt {attempt}/3). Retrying in 4 seconds to allow registration to propagate..."
+                        )
                         time.sleep(4)
                     else:
                         self.is_licensed = False
-                        print_info("Management Node is unlicensed/trial (0 licenses found after retries).")
+                        print_info(
+                            "Management Node is unlicensed/trial (0 licenses found after retries)."
+                        )
             else:
                 self.is_licensed = False
                 print_error("Failed to query licensing status. Assuming unlicensed.")
@@ -133,7 +158,9 @@ class PexipConfigurator:
     def sync_license(self, license_key):
         """Idempotently apply the Pexip activation key."""
         if not license_key:
-            print_skip("No license_key provided in configuration. Skipping license step.")
+            print_skip(
+                "No license_key provided in configuration. Skipping license step."
+            )
             return
 
         print_info("Checking existing licenses...")
@@ -156,11 +183,16 @@ class PexipConfigurator:
             if post_response and post_response.status_code == 201:
                 print_success("License key applied successfully.")
                 import time
-                print_info("Waiting 8 seconds for license activation to register on the platform...")
+
+                print_info(
+                    "Waiting 8 seconds for license activation to register on the platform..."
+                )
                 time.sleep(8)
             else:
                 self.has_errors = True
-                print_error("Failed to apply license key. Make sure the node is online and can reach activation.pexip.com.")
+                print_error(
+                    "Failed to apply license key. Make sure the node is online and can reach activation.pexip.com."
+                )
         else:
             self.has_errors = True
             print_error("Failed to read license settings.")
@@ -172,7 +204,9 @@ class PexipConfigurator:
             return
 
         if not self.is_licensed:
-            print_skip("Management Node is unlicensed. Skipping VMR synchronization (requires platform license).")
+            print_skip(
+                "Management Node is unlicensed. Skipping VMR synchronization (requires platform license)."
+            )
             return
 
         print_info(f"Syncing {len(vmrs)} Virtual Meeting Rooms...")
@@ -184,7 +218,9 @@ class PexipConfigurator:
                 continue
 
             # Check if this VMR exists
-            response = self.request("GET", "conference", params={"service_type": "conference", "name": name})
+            response = self.request(
+                "GET", "conference", params={"service_type": "conference", "name": name}
+            )
             if not response or response.status_code != 200:
                 self.has_errors = True
                 print_error(f"Could not verify existence of VMR '{name}'. Skipping.")
@@ -206,15 +242,19 @@ class PexipConfigurator:
                 "guest_pin": vmr.get("guest_pin", ""),
                 "host_view": vmr.get("host_view", "one_main_seven_pips"),
                 "guest_view": vmr.get("guest_view", "one_main_seven_pips"),
-                "aliases": aliases_payload
+                "aliases": aliases_payload,
             }
 
             if not existing_objects:
                 # Create VMR
                 print_info(f"VMR '{name}' not found. Creating it...")
-                create_response = self.request("POST", "conference", json_data=desired_payload)
+                create_response = self.request(
+                    "POST", "conference", json_data=desired_payload
+                )
                 if create_response and create_response.status_code == 201:
-                    print_success(f"Created VMR '{name}' with aliases: {', '.join(vmr.get('aliases', []))}")
+                    print_success(
+                        f"Created VMR '{name}' with aliases: {', '.join(vmr.get('aliases', []))}"
+                    )
                 else:
                     self.has_errors = True
                     print_error(f"Failed to create VMR '{name}'.")
@@ -222,14 +262,21 @@ class PexipConfigurator:
                 # Update existing VMR
                 existing_vmr = existing_objects[0]
                 vmr_id = existing_vmr.get("id")
-                resource_uri = existing_vmr.get("resource_uri")
 
                 # Compare fields to determine if we need a PATCH
                 needs_update = False
                 patch_payload = {}
 
                 # Fields to verify
-                fields_to_compare = ["description", "tag", "allow_guests", "pin", "guest_pin", "host_view", "guest_view"]
+                fields_to_compare = [
+                    "description",
+                    "tag",
+                    "allow_guests",
+                    "pin",
+                    "guest_pin",
+                    "host_view",
+                    "guest_view",
+                ]
                 for field in fields_to_compare:
                     existing_val = existing_vmr.get(field)
                     desired_val = desired_payload.get(field)
@@ -245,16 +292,24 @@ class PexipConfigurator:
                         patch_payload[field] = desired_val
 
                 # Compare aliases (nested replace list)
-                existing_aliases = {a.get("alias") for a in existing_vmr.get("aliases", []) if a.get("alias")}
+                existing_aliases = {
+                    a.get("alias")
+                    for a in existing_vmr.get("aliases", [])
+                    if a.get("alias")
+                }
                 desired_aliases = set(vmr.get("aliases", []))
                 if existing_aliases != desired_aliases:
                     needs_update = True
                     patch_payload["aliases"] = aliases_payload
 
                 if needs_update:
-                    print_info(f"VMR '{name}' exists but has modified configurations. Updating...")
+                    print_info(
+                        f"VMR '{name}' exists but has modified configurations. Updating..."
+                    )
                     patch_endpoint = f"conference/{vmr_id}"
-                    patch_response = self.request("PATCH", patch_endpoint, json_data=patch_payload)
+                    patch_response = self.request(
+                        "PATCH", patch_endpoint, json_data=patch_payload
+                    )
                     if patch_response and patch_response.status_code in (200, 202, 204):
                         print_update(f"Updated VMR '{name}'.")
                     else:
@@ -266,7 +321,9 @@ class PexipConfigurator:
     def sync_gateway_rules(self, rules):
         """Idempotently sync Gateway Routing Rules (Dial Plan)."""
         if not rules:
-            print_skip("No gateway_rules defined in configuration. Skipping Gateway Rules step.")
+            print_skip(
+                "No gateway_rules defined in configuration. Skipping Gateway Rules step."
+            )
             return
 
         print_info(f"Syncing {len(rules)} Gateway Routing Rules...")
@@ -280,10 +337,14 @@ class PexipConfigurator:
             # Check if this is a Teams-specific rule on an unlicensed manager
             called_device_type = rule.get("called_device_type", "external")
             outgoing_protocol = rule.get("outgoing_protocol", "sip")
-            is_teams_rule = (called_device_type == "teams_conference" or outgoing_protocol == "teams")
-            
+            is_teams_rule = (
+                called_device_type == "teams_conference" or outgoing_protocol == "teams"
+            )
+
             if not self.is_licensed and is_teams_rule:
-                print_skip(f"Gateway rule '{name}' is Teams-specific and Management Node is unlicensed. Skipping rule.")
+                print_skip(
+                    f"Gateway rule '{name}' is Teams-specific and Management Node is unlicensed. Skipping rule."
+                )
                 continue
 
             # Resolve location URI
@@ -293,8 +354,10 @@ class PexipConfigurator:
                 location_uri = self.locations_map.get(location_name, "")
                 if not location_uri:
                     self.has_errors = True
-                    print_error(f"Location '{location_name}' not found. Rule '{name}' will use default location.")
-            
+                    print_error(
+                        f"Location '{location_name}' not found. Rule '{name}' will use default location."
+                    )
+
             # Default to first location in map if not resolved
             if not location_uri and self.locations_map:
                 location_uri = list(self.locations_map.values())[0]
@@ -310,14 +373,18 @@ class PexipConfigurator:
                 "outgoing_protocol": rule.get("outgoing_protocol", "sip"),
                 "outgoing_location": location_uri,
                 "call_type": rule.get("call_type", "video"),
-                "crypto_mode": rule.get("crypto_mode", "best_effort")
+                "crypto_mode": rule.get("crypto_mode", "best_effort"),
             }
 
             # Check if this rule exists by name
-            response = self.request("GET", "gateway_routing_rule", params={"name": name})
+            response = self.request(
+                "GET", "gateway_routing_rule", params={"name": name}
+            )
             if not response or response.status_code != 200:
                 self.has_errors = True
-                print_error(f"Could not verify existence of gateway rule '{name}'. Skipping.")
+                print_error(
+                    f"Could not verify existence of gateway rule '{name}'. Skipping."
+                )
                 continue
 
             data = response.json()
@@ -326,9 +393,13 @@ class PexipConfigurator:
             if not existing_objects:
                 # Create Gateway Rule
                 print_info(f"Gateway rule '{name}' not found. Creating it...")
-                create_response = self.request("POST", "gateway_routing_rule", json_data=desired_payload)
+                create_response = self.request(
+                    "POST", "gateway_routing_rule", json_data=desired_payload
+                )
                 if create_response and create_response.status_code == 201:
-                    print_success(f"Created Gateway Routing Rule '{name}' (Priority {desired_payload['priority']})")
+                    print_success(
+                        f"Created Gateway Routing Rule '{name}' (Priority {desired_payload['priority']})"
+                    )
                 else:
                     self.has_errors = True
                     print_error(f"Failed to create Gateway Routing Rule '{name}'.")
@@ -342,8 +413,16 @@ class PexipConfigurator:
 
                 # Fields to verify
                 fields_to_compare = [
-                    "description", "priority", "enable", "match_string", "replace_string",
-                    "called_device_type", "outgoing_protocol", "outgoing_location", "call_type", "crypto_mode"
+                    "description",
+                    "priority",
+                    "enable",
+                    "match_string",
+                    "replace_string",
+                    "called_device_type",
+                    "outgoing_protocol",
+                    "outgoing_location",
+                    "call_type",
+                    "crypto_mode",
                 ]
                 for field in fields_to_compare:
                     existing_val = existing_rule.get(field)
@@ -356,9 +435,13 @@ class PexipConfigurator:
                         patch_payload[field] = desired_val
 
                 if needs_update:
-                    print_info(f"Gateway rule '{name}' exists but has modified configurations. Updating...")
+                    print_info(
+                        f"Gateway rule '{name}' exists but has modified configurations. Updating..."
+                    )
                     patch_endpoint = f"gateway_routing_rule/{rule_id}"
-                    patch_response = self.request("PATCH", patch_endpoint, json_data=patch_payload)
+                    patch_response = self.request(
+                        "PATCH", patch_endpoint, json_data=patch_payload
+                    )
                     if patch_response and patch_response.status_code in (200, 202, 204):
                         print_update(f"Updated Gateway Routing Rule '{name}'.")
                     else:
@@ -378,11 +461,15 @@ class PexipConfigurator:
             email = user.get("primary_email_address")
             if not email:
                 self.has_errors = True
-                print_error("Skipping User entry missing 'primary_email_address' attribute.")
+                print_error(
+                    "Skipping User entry missing 'primary_email_address' attribute."
+                )
                 continue
 
             # Check if this user exists
-            response = self.request("GET", "end_user", params={"primary_email_address": email})
+            response = self.request(
+                "GET", "end_user", params={"primary_email_address": email}
+            )
             if not response or response.status_code != 200:
                 self.has_errors = True
                 print_error(f"Could not verify existence of user '{email}'. Skipping.")
@@ -400,13 +487,15 @@ class PexipConfigurator:
                 "mobile_number": user.get("mobile_number", ""),
                 "title": user.get("title", ""),
                 "department": user.get("department", ""),
-                "avatar_url": user.get("avatar_url", "")
+                "avatar_url": user.get("avatar_url", ""),
             }
 
             if not existing_objects:
                 # Create End User
                 print_info(f"User '{email}' not found. Creating it...")
-                create_response = self.request("POST", "end_user", json_data=desired_payload)
+                create_response = self.request(
+                    "POST", "end_user", json_data=desired_payload
+                )
                 if create_response and create_response.status_code == 201:
                     print_success(f"Created User '{email}'")
                 else:
@@ -422,8 +511,14 @@ class PexipConfigurator:
 
                 # Fields to verify
                 fields_to_compare = [
-                    "first_name", "last_name", "display_name", "telephone_number",
-                    "mobile_number", "title", "department", "avatar_url"
+                    "first_name",
+                    "last_name",
+                    "display_name",
+                    "telephone_number",
+                    "mobile_number",
+                    "title",
+                    "department",
+                    "avatar_url",
                 ]
                 for field in fields_to_compare:
                     existing_val = existing_user.get(field)
@@ -433,9 +528,13 @@ class PexipConfigurator:
                         patch_payload[field] = desired_val
 
                 if needs_update:
-                    print_info(f"User '{email}' exists but has modified configurations. Updating...")
+                    print_info(
+                        f"User '{email}' exists but has modified configurations. Updating..."
+                    )
                     patch_endpoint = f"end_user/{user_id}"
-                    patch_response = self.request("PATCH", patch_endpoint, json_data=patch_payload)
+                    patch_response = self.request(
+                        "PATCH", patch_endpoint, json_data=patch_payload
+                    )
                     if patch_response and patch_response.status_code in (200, 202, 204):
                         print_update(f"Updated User '{email}'.")
                     else:
@@ -447,7 +546,9 @@ class PexipConfigurator:
     def sync_device_aliases(self, device_aliases):
         """Idempotently sync Device Aliases (Registrations)."""
         if not device_aliases:
-            print_skip("No device aliases defined in configuration. Skipping Device Aliases step.")
+            print_skip(
+                "No device aliases defined in configuration. Skipping Device Aliases step."
+            )
             return
 
         print_info(f"Syncing {len(device_aliases)} Device Aliases...")
@@ -455,14 +556,18 @@ class PexipConfigurator:
             alias = da.get("device_alias")
             if not alias:
                 self.has_errors = True
-                print_error("Skipping Device Alias entry missing 'device_alias' attribute.")
+                print_error(
+                    "Skipping Device Alias entry missing 'device_alias' attribute."
+                )
                 continue
 
             # Check if this device alias exists (using 'device' endpoint)
             response = self.request("GET", "device", params={"alias": alias})
             if not response or response.status_code != 200:
                 self.has_errors = True
-                print_error(f"Could not verify existence of device alias '{alias}'. Skipping.")
+                print_error(
+                    f"Could not verify existence of device alias '{alias}'. Skipping."
+                )
                 continue
 
             data = response.json()
@@ -474,13 +579,17 @@ class PexipConfigurator:
                 "username": da.get("device_username", ""),
                 "password": da.get("device_password", ""),
                 "tag": da.get("device_tag", ""),
-                "primary_owner_email_address": da.get("primary_owner_email_address", "")
+                "primary_owner_email_address": da.get(
+                    "primary_owner_email_address", ""
+                ),
             }
 
             if not existing_objects:
                 # Create Device Alias
                 print_info(f"Device alias '{alias}' not found. Creating it...")
-                create_response = self.request("POST", "device", json_data=desired_payload)
+                create_response = self.request(
+                    "POST", "device", json_data=desired_payload
+                )
                 if create_response and create_response.status_code == 201:
                     print_success(f"Created Device Alias '{alias}'")
                 else:
@@ -495,7 +604,12 @@ class PexipConfigurator:
                 patch_payload = {}
 
                 # Fields to verify (excluding password from comparison to prevent constant sync writes)
-                fields_to_compare = ["description", "username", "tag", "primary_owner_email_address"]
+                fields_to_compare = [
+                    "description",
+                    "username",
+                    "tag",
+                    "primary_owner_email_address",
+                ]
                 for field in fields_to_compare:
                     existing_val = existing_da.get(field)
                     desired_val = desired_payload.get(field)
@@ -508,9 +622,13 @@ class PexipConfigurator:
                     if desired_payload["password"]:
                         patch_payload["password"] = desired_payload["password"]
 
-                    print_info(f"Device alias '{alias}' exists but has modified configurations. Updating...")
+                    print_info(
+                        f"Device alias '{alias}' exists but has modified configurations. Updating..."
+                    )
                     patch_endpoint = f"device/{da_id}"
-                    patch_response = self.request("PATCH", patch_endpoint, json_data=patch_payload)
+                    patch_response = self.request(
+                        "PATCH", patch_endpoint, json_data=patch_payload
+                    )
                     if patch_response and patch_response.status_code in (200, 202, 204):
                         print_update(f"Updated Device Alias '{alias}'.")
                     else:
@@ -519,22 +637,37 @@ class PexipConfigurator:
                 else:
                     print_skip(f"Device alias '{alias}' is already up-to-date.")
 
+
 def main():
     parser = argparse.ArgumentParser(description="Pexip Stage 2 Sync Tool")
-    parser.add_argument("--host", required=True, help="IP address of the Pexip Management Node")
-    parser.add_argument("--password", required=True, help="Admin password for the Pexip Management Node")
-    parser.add_argument("--config", default="pexip-config.yaml", help="Path to the pexip-config.yaml file")
-    parser.add_argument("--verify-ssl", action="store_true", help="Verify SSL certificate (default: False)")
+    parser.add_argument(
+        "--host", required=True, help="IP address of the Pexip Management Node"
+    )
+    parser.add_argument(
+        "--password", required=True, help="Admin password for the Pexip Management Node"
+    )
+    parser.add_argument(
+        "--config",
+        default="pexip-config.yaml",
+        help="Path to the pexip-config.yaml file",
+    )
+    parser.add_argument(
+        "--verify-ssl",
+        action="store_true",
+        help="Verify SSL certificate (default: False)",
+    )
     args = parser.parse_args()
 
     # Verify config file exists
     if not os.path.exists(args.config):
-        print_error(f"Configuration file not found at '{args.config}'. Please create one first.")
+        print_error(
+            f"Configuration file not found at '{args.config}'. Please create one first."
+        )
         sys.exit(1)
 
     print_info(f"Loading configuration from '{args.config}'...")
     try:
-        with open(args.config, 'r') as f:
+        with open(args.config, "r") as f:
             config_data = yaml.safe_load(f)
     except Exception as e:
         print_error(f"Failed to parse YAML configuration: {e}")
@@ -545,7 +678,9 @@ def main():
         sys.exit(1)
 
     print_info(f"Initializing connection to Pexip Management Node at {args.host}...")
-    configurator = PexipConfigurator(args.host, args.password, verify_ssl=args.verify_ssl)
+    configurator = PexipConfigurator(
+        args.host, args.password, verify_ssl=args.verify_ssl
+    )
 
     # 1. Sync License (First thing)
     print_info("--- STEP 1: LICENSE SYNC ---")
@@ -577,6 +712,6 @@ def main():
     else:
         print_success("Stage 2 configuration synchronization completed.")
 
+
 if __name__ == "__main__":
     main()
-
