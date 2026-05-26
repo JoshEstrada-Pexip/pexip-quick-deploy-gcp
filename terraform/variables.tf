@@ -12,7 +12,7 @@ variable "region" {
 variable "zone_letter" {
   description = "Zone letter inside the region for all VMs (a/b/c/...)."
   type        = string
-  default     = "b"
+  default     = "a"
 }
 
 variable "network_name" {

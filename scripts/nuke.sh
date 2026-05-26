@@ -45,7 +45,11 @@ REGION=""
 REGION="${REGION:-us-west1}"
 ZONE_LETTER=""
 [[ -f "$TFVARS" ]] && ZONE_LETTER="$(grep -E '^zone_letter' "$TFVARS" | head -1 | cut -d'"' -f2 || true)"
-ZONE="${REGION}-${ZONE_LETTER:-b}"
+if [[ "$ZONE_LETTER" == "any" ]]; then
+  ZONE="${REGION}-any (auto-selected)"
+else
+  ZONE="${REGION}-${ZONE_LETTER:-a}"
+fi
 
 echo "Wiping Pexip Quick Deploy resources from:"
 echo "  project: $PROJ"
