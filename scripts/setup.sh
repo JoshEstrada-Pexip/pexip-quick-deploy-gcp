@@ -378,13 +378,15 @@ else
 
   if [[ "$run_acme_setup" == "true" ]]; then
     enable_acme=true
-    acme_domain="$(ask_input 'Base DNS domain (e.g. demo.example.com)' '')"
-    [[ -z "$acme_domain" ]] && { print_error "acme_domain is required when ACME is enabled."; exit 1; }
+    acme_domain=""
 
     while :; do
-      acme_manager_hostname="$(ask_input 'Manager short hostname under that domain' 'pexip-mgr')"
-      acme_conf_hostname_prefix="$(ask_input 'Conf-node short-hostname prefix' 'pexip-conf')"
-      acme_email="$(ask_input 'Email for the Let'\''s Encrypt account' "$contact_email")"
+      acme_domain="$(ask_input 'Base DNS domain (e.g. demo.example.com)' "$acme_domain")"
+      [[ -z "$acme_domain" ]] && { print_error "acme_domain is required when ACME is enabled."; exit 1; }
+
+      acme_manager_hostname="$(ask_input 'Manager short hostname under that domain' "${acme_manager_hostname:-pexip-mgr}")"
+      acme_conf_hostname_prefix="$(ask_input 'Conf-node short-hostname prefix' "${acme_conf_hostname_prefix:-pexip-conf}")"
+      acme_email="$(ask_input 'Email for the Let'\''s Encrypt account' "${acme_email:-$contact_email}")"
 
       echo
       print_info "Cloudflare API token is required. Create one at:"
@@ -398,15 +400,34 @@ else
         echo
         if CF_DNS_API_TOKEN="$cloudflare_api_token" ACME_DOMAIN="$acme_domain" \
            "${REPO_ROOT}/scripts/test-cloudflare-token.sh"; then
+          token_valid=true
           break
         fi
         echo
-        print_error "Cloudflare preflight failed. Paste a corrected token, or Ctrl-C to abort."
+        print_error "Cloudflare preflight failed."
         print_info "Common fixes: re-copy the token (no leading/trailing whitespace), or"
         print_info "re-create at https://dash.cloudflare.com/profile/api-tokens with"
         print_info "Zone -> DNS -> Edit on the zone for ${acme_domain}."
         echo
+
+        preflight_options=(
+          "Try entering the token again"
+          "Re-enter the domain / hostnames"
+          "Abort setup"
+        )
+        preflight_choice=$(ask_select "How would you like to resolve this?" 0 "${preflight_options[@]}")
+        if [[ $preflight_choice -eq 1 ]]; then
+          token_valid=false
+          break # Breaks the token loop, restarts the outer domain/hostname loop
+        elif [[ $preflight_choice -eq 2 ]]; then
+          print_error "Setup aborted by user."
+          exit 1
+        fi
       done
+
+      if [[ "${token_valid:-false}" == "false" ]]; then
+        continue # Restarts outer loop to re-enter domain/hostnames
+      fi
 
       echo
       acme_options=("stage  (recommended for first deploy - browser warning)" "prod   (browser-trusted - strict rate limits)")
