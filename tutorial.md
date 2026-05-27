@@ -68,7 +68,13 @@ Keep these commands handy to manage, backup, or recover your deployment:
 If you chose not to download the backup at the end of the script, or if you need to fetch it later, run this command to package and download your configuration and active Terraform state:
 
 ```bash
-python3 -c "import zipfile, os; files=['terraform/terraform.tfstate', 'terraform/terraform.tfvars', 'pexip-config.yaml', 'pexip-deployment-info.md']; zipf=zipfile.ZipFile('pexip-backup.zip', 'w', zipfile.ZIP_DEFLATED); [zipf.write(f) for f in files if os.path.exists(f)]; zipf.close()" && cloudshell download pexip-backup.zip
+if [[ -f terraform/terraform.tfstate ]]; then
+  python3 -c "import zipfile, os; files=['terraform/terraform.tfstate', 'terraform/terraform.tfvars', 'pexip-config.yaml', 'pexip-deployment-info.md']; zipf=zipfile.ZipFile('pexip-backup.zip', 'w', zipfile.ZIP_DEFLATED); [zipf.write(f) for f in files if os.path.exists(f)]; zipf.close()" && cloudshell download pexip-backup.zip
+else
+  echo "ERROR: terraform.tfstate not found in this directory."
+  echo "Please change directory (cd) into your active deployment folder first:"
+  for d in ~/cloudshell_open/pexip-quick-deploy*/; do [[ -f "$d/terraform/terraform.tfstate" ]] && echo "  cd $d"; done
+fi
 ```
 
 ### If your session disconnected (How to get back)
