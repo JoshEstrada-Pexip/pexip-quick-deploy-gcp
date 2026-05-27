@@ -88,9 +88,7 @@ After the GCP infrastructure is successfully deployed, you can also use the decl
 
 The `setup.sh` wizard automatically creates `pexip-config.yaml` in the workspace root and pre-populates it with the license key you entered.
 
-If you want to customize your deployment (e.g., customize VMRs, add real admin users, edit call routing rules), open the file using the built-in GCP cloud shell editor or use another text editor if needed
-
-Example:
+If you want to customize your deployment (e.g., customize VMRs, add real admin users, edit call routing rules), open the file in the built-in Cloud Shell Editor (or your local IDE), or edit it directly in the terminal:
 
 ```bash
 nano pexip-config.yaml

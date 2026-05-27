@@ -36,10 +36,10 @@ At the end of the deployment, the setup wizard will ask:
 
 * **Choosing Yes (Recommended):** Automatically registers your licenses, Virtual Meeting Rooms (VMRs), Dial Plans, test users, and aliases using the pre-configured [pexip-config.yaml](file:///Users/joshestrada/Desktop/Pexip%20Projects/pexip-quick-deploy/pexip-config.yaml) file.
 * **If you skipped it or want to customize it later:**
-  1. Open the configuration file to inspect and customize your settings:
-     ```bash
-     nano pexip-config.yaml
-     ```
+  1. Open [pexip-config.yaml](file:///Users/joshestrada/Desktop/Pexip%20Projects/pexip-quick-deploy/pexip-config.yaml) in the Cloud Shell Editor:
+     <walkthrough-editor-open-file filePath="pexip-config.yaml">Open pexip-config.yaml</walkthrough-editor-open-file>
+
+     *(Alternatively, edit the file in your terminal via `nano pexip-config.yaml`)*.
   2. Sync your updates to the active Management Node by running:
      ```bash
      ./scripts/configure-platform.sh
