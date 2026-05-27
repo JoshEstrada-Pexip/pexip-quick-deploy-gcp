@@ -78,17 +78,21 @@ Password:   (the password you specified or that it generated during setup)
 
 1. Open the Admin UI URL.
 2. Bypass the TLS warning (if using the default self-signed certificate, click Advanced > Proceed).
-3. Apply your license if needed and configuration using **Stage 2: Declarative Configuration** (see below), or log in manually and configure them via the web UI.
+3. Apply your license and configuration using **Stage 2: Automatic Base Configuration (Declarative Sync)** (see below), or log in manually and configure them via the Pexip Web UI.
 
-## Stage 2: Declarative Platform Configuration
+## Stage 2: Automatic Base Configuration (Declarative Sync)
 
-After the GCP infrastructure is successfully deployed, you can also use the declarative configuration tool to bootstrap your license, Virtual Meeting Rooms (VMRs), and call routing rules automatically without clicking through the GCP web UI.
+At the end of the GCP infrastructure deployment, the setup wizard will prompt you:
+`Automatically run configuration sync now?` (Stage 2).
+
+* **Automatic Sync (Recommended)**: Choosing **Yes** automatically registers your license and provisions base resources—Virtual Meeting Rooms (VMRs), Dial Plans, test users, and aliases—using the pre-configured `pexip-config.yaml` file, without requiring manual setup in the Pexip Administrator Web UI.
+* **Manual / Custom Sync**: If you skipped the sync during setup, or if you want to update your platform configuration later:
 
 ### 1. (Optional) Customize Settings
 
 The `setup.sh` wizard automatically creates `pexip-config.yaml` in the workspace root and pre-populates it with the license key you entered.
 
-If you want to customize your deployment (e.g., customize VMRs, add real admin users, edit call routing rules), open the file in the built-in Cloud Shell Editor (or your local IDE), or edit it directly in the terminal:
+If you want to customize your settings (e.g., add real admin users, define custom VMRs, edit call routing rules), open the file in the built-in Cloud Shell Editor (or your local IDE), or edit it directly in the terminal:
 
 ```bash
 nano pexip-config.yaml
@@ -202,7 +206,7 @@ Here is the list of prompts presented by [setup.sh](scripts/setup.sh) (some may 
 If setup is interrupted or fails midway, you can wipe all created resources and start fresh by running [nuke.sh](scripts/nuke.sh):
 
 ```bash
-./scripts/nuke.sh
+./scripts/nuke.sh <your-project-id>
 ./scripts/setup.sh
 ```
 
@@ -213,7 +217,7 @@ The nuke script safely deletes any resources matching the `pexip-quick-*` naming
 If your session times out, the local Terraform state file remains in the original directory but a new tab might open a fresh clone. Search for the correct directory containing `terraform.tfstate`:
 
 ```bash
-for d in ~/cloudshell_open/pexip-quick-deploy*/; do
+for d in ~/cloudshell_open/*pexip*/; do
   if [[ -f "$d/terraform/terraform.tfstate" ]]; then
     echo "Found state in: $d"
   fi
@@ -233,22 +237,7 @@ Change directory into that folder and run [destroy.sh](scripts/destroy.sh) or [s
 
 </details>
 
-<details>
-<summary>Comparison with Full Terraform Module</summary>
 
-| Feature                   | Quick Deploy             | Full module                   |
-| ------------------------- | ------------------------ | ----------------------------- |
-| Multiple regions          | No                       | Yes                           |
-| Proxy + Transcoding mix   | No (transcoding only)    | Yes                           |
-| Multiple system locations | No (single "Primary")    | Yes                           |
-| Existing VPC / Shared VPC | No (always creates new)  | Yes                           |
-| Custom TLS certificates   | Staging / Prod ACME only | Custom / External TLS uploads |
-| Remote state backend      | Local only               | Yes                           |
-| Backup Manager (HA)       | No                       | Yes                           |
-
-If you need enterprise-grade architectures, use the official Terraform Pexip Provider and the [terraform-google-pexip-infinity](https://github.com/Josh-E-S/terraform-google-pexip-infinity) module instead.
-
-</details>
 
 <details>
 <summary>Repository Layout</summary>
