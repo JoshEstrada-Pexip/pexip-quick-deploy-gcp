@@ -447,7 +447,7 @@ else
 
         if [[ $check_status -eq 2 ]]; then
           echo
-          print_warning "⚠️  Warning: Conflicting/existing DNS records were found in Cloudflare."
+          print_warning "Conflicting/existing DNS records were found in Cloudflare."
           print_info "What would you like to do?"
           conflict_options=(
             "Delete/Overwrite the existing records (Recommended if replacing a stale/failed deploy)"

@@ -10,6 +10,7 @@ TEXT_PURPLE="\033[38;5;99m"       # Pexip purple/indigo
 TEXT_CYAN="\033[38;5;39m"         # Sky blue/cyan
 TEXT_GREEN="\033[38;5;76m"        # Success green
 TEXT_RED="\033[38;5;196m"         # Error red
+TEXT_YELLOW="\033[38;5;214m"      # Warning orange/yellow
 TEXT_UNDERLINE="\033[4m"          # Underline
 RESET="\033[0m"
 
@@ -42,6 +43,11 @@ print_success() {
 # UI error helpers
 print_error() {
   echo -e "  ${TEXT_RED}✖${RESET}  $*" >&2
+}
+
+# UI warning helpers
+print_warning() {
+  echo -e "  ${TEXT_YELLOW}⚠${RESET}  ${TEXT_MUTED}$*${RESET}"
 }
 
 # UI info helpers
