@@ -94,28 +94,57 @@ fmt_status() {
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
-# find_cert_uri <subject_name> -> echoes resource_uri (or empty)
-# GET /tls_certificate/?subject_name=<fqdn> and pick the matching record.
+# find_cert_uri <subject_name> <cert_pem> -> echoes resource_uri (or empty)
+# GET /tls_certificate/?subject_name=<fqdn> and pick the record with the matching fingerprint.
 find_cert_uri() {
   local subject="$1"
+  local cert_pem="$2"
+
+  if [[ -z "$cert_pem" ]]; then
+    return
+  fi
+
+  # Compute target certificate fingerprint
+  local target_fingerprint
+  target_fingerprint="$(echo "$cert_pem" | openssl x509 -noout -fingerprint 2>/dev/null | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+
+  if [[ -z "$target_fingerprint" ]]; then
+    return
+  fi
+
   local lookup="${tmpdir}/cert-lookup-$(echo "$subject" | tr -c 'a-zA-Z0-9' '_').json"
   local status
   status="$(pexip_curl "${CONFIG_BASE}/tls_certificate/?subject_name=${subject}" | split_response "$lookup")"
   [[ "$status" == "200" ]] || err "tls_certificate GET (subject=${subject}) failed ($(fmt_status "$status")): $(cat "$lookup")"
-  jq -r --arg s "$subject" \
-    '.objects[] | select(.subject_name == $s) | .resource_uri' \
-    "$lookup" | head -1
+
+  # Iterate over matching certificates and compare fingerprints
+  local count
+  count="$(jq '.objects | length' "$lookup")"
+  for ((i=0; i<count; i++)); do
+    local uri cert_data
+    uri="$(jq -r ".objects[$i].resource_uri" "$lookup")"
+    cert_data="$(jq -r ".objects[$i].certificate" "$lookup")"
+
+    if [[ -n "$cert_data" && "$cert_data" != "null" ]]; then
+      local fp
+      fp="$(echo "$cert_data" | openssl x509 -noout -fingerprint 2>/dev/null | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+      if [[ "$fp" == "$target_fingerprint" ]]; then
+        echo "$uri"
+        return
+      fi
+    fi
+  done
 }
 
 # import_or_find <subject_name> <leaf_pem> <chain_pem> <key_pem> -> echoes resource_uri
 # Imports the cert via the bulk certificates_import endpoint, then looks up
 # the created record by subject_name. If a cert with the same subject_name
-# already exists, skip the import and reuse it.
+# and fingerprint already exists, skip the import and reuse it.
 import_or_find() {
   local subject="$1" leaf="$2" chain="$3" key="$4"
 
   local existing
-  existing="$(find_cert_uri "$subject")"
+  existing="$(find_cert_uri "$subject" "$leaf")"
   if [[ -n "$existing" ]]; then
     echo "    tls_certificate for ${subject} already exists (${existing}); reusing" >&2
     echo "$existing"
@@ -146,7 +175,7 @@ import_or_find() {
   # certificates_import doesn't reliably return the new record's URI in the
   # response body across Pexip versions, so re-GET by subject_name.
   local uri
-  uri="$(find_cert_uri "$subject")"
+  uri="$(find_cert_uri "$subject" "$leaf")"
   [[ -n "$uri" ]] || err "tls_certificate for ${subject} imported but GET by subject_name returned nothing"
   echo "$uri"
 }
