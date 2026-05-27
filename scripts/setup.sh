@@ -684,7 +684,7 @@ if os.path.exists(yaml_path):
   apply_log="$(mktemp)"
   zone_apply_ok=0
   apply_attempts=3
-  
+
   for attempt in $(seq 1 $apply_attempts); do
     echo
     echo "==> terraform apply (attempt $attempt of $apply_attempts in zone ${current_letter})...."
