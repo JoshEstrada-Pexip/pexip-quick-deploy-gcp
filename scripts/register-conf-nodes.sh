@@ -24,7 +24,7 @@
 #                               gateway, password_hash
 #                             and optional:
 #                               static_nat_address
-#   PEXIP_SYSTEM_LOCATION   — system_location name (default "default").
+#   PEXIP_SYSTEM_LOCATION   — system_location name (default "Primary").
 #   PEXIP_DNS_SERVERS       — comma-separated DNS server IPs to register and
 #                             attach to the system_location. Default "8.8.8.8"
 #                             (matches the Manager bootstrap). Without this
@@ -49,7 +49,7 @@ set -euo pipefail
 : "${PEXIP_MANAGER_IP:?must be set}"
 : "${PEXIP_ADMIN_PASSWORD:?must be set}"
 : "${PEXIP_CONF_NODES_JSON:?must be set (JSON array)}"
-PEXIP_SYSTEM_LOCATION="${PEXIP_SYSTEM_LOCATION:-default}"
+PEXIP_SYSTEM_LOCATION="${PEXIP_SYSTEM_LOCATION:-Primary}"
 PEXIP_DNS_SERVERS="${PEXIP_DNS_SERVERS:-8.8.8.8}"
 PEXIP_NTP_SERVERS="${PEXIP_NTP_SERVERS:-pool.ntp.org}"
 PEXIP_OUT_DIR="${PEXIP_OUT_DIR:-.}"

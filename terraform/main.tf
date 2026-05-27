@@ -385,6 +385,7 @@ resource "null_resource" "register_conf_nodes" {
       PEXIP_MANAGER_IP      = google_compute_address.manager_public.address
       PEXIP_ADMIN_PASSWORD  = var.pexip_admin_password
       PEXIP_CONF_NODES_JSON = jsonencode(local.conf_node_specs)
+      PEXIP_SYSTEM_LOCATION = "Primary"
       PEXIP_DNS_SERVERS     = join(",", var.dns_servers)
       PEXIP_NTP_SERVERS     = join(",", var.ntp_servers)
       PEXIP_OUT_DIR         = path.module
