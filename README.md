@@ -169,25 +169,7 @@ Here is the list of prompts presented by [setup.sh](scripts/setup.sh) (some may 
 <details>
 <summary>How it Works</summary>
 
-```
-[ User clicks badge ]
-        ↓
-[ Cloud Shell opens, repo cloned, banner printed ]
-        ↓
-[ ./scripts/setup.sh ]      ← interactive prompts (8 base)
-        ↓
-[ terraform apply ]
-        ├─ VPC + subnet + firewall + service account
-        ├─ Pexip images copied from Pexip registry
-        ├─ Manager bootstrap JSON (generated locally, injected via GCE metadata)
-        ├─ Management Node VM
-        ├─ Wait for Manager API to come up
-        ├─ Register Conferencing Nodes via Manager API
-        ├─ Conferencing Node VMs
-        └─ [Optional] ACME DNS-01 via Cloudflare → upload certs to Pexip
-        ↓
-[ Admin URL printed; user logs in ]
-```
+![Deployment Flowchart](images/flowchart.png)
 
 ### Deployed Resources
 
