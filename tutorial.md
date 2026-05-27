@@ -14,6 +14,8 @@ Click **Start** to begin.
 
 ## Step 1: Choose your GCP project
 
+Create a new project to ensure that you have the permissions you need, or select an existing project in which you have the relevant permissions.
+
 <walkthrough-project-setup></walkthrough-project-setup>
 
 Select or create a GCP project with **billing enabled**. The project ID will be injected directly into the setup script.
@@ -28,7 +30,24 @@ Click the command block below to paste it into the Cloud Shell terminal, then pr
 
 > ⚠️ **Timeout Warning:** Terraform takes 8–12 minutes. Ensure your browser tab stays active and your computer does not sleep.
 
-## Step 3: Access the Admin UI
+## Step 3: Automatic Base Configuration (Stage 2)
+
+At the end of the deployment, the setup wizard will ask:
+`Automatically run configuration sync now?` (Stage 2).
+
+* **Choosing Yes (Recommended):** Automatically registers your licenses, Virtual Meeting Rooms (VMRs), Dial Plans, test users, and aliases using the pre-configured [pexip-config.yaml](file:///Users/joshestrada/Desktop/Pexip%20Projects/pexip-quick-deploy/pexip-config.yaml) file.
+* **If you skipped it or want to customize it later:**
+  1. Open the configuration file to inspect and customize your settings:
+     ```bash
+     nano pexip-config.yaml
+     ```
+  2. Sync your updates to the active Management Node by running:
+     ```bash
+     ./scripts/configure-platform.sh
+     ```
+* **Self-Signed/Simple Mode:** You can skip this configuration sync during setup as it requires a trial or production license key.
+
+## Step 4: Access the Admin UI
 
 When the setup script completes, it will output your credentials card:
 
@@ -42,28 +61,19 @@ Password:   (Generated or custom password)
 2. If you used **Simple Mode** (self-signed certs), bypass the browser warning by clicking **Advanced > Proceed**. (For **Licensed/TLS Mode**, the page will load securely without warnings).
 3. Log in with your admin credentials.
 
-## Step 4: Declarative Platform Configuration
+## Step 5: Backup, Teardown, or Recovery
 
-You can automatically apply your licenses, Virtual Meeting Rooms (VMRs), Dial Plans, End Users, and Device Aliases programmatically:
+Keep these commands handy to manage, backup, or clean up your deployment:
 
-1. Open the configuration file inside your terminal to inspect and customize your settings:
-
-```bash
-nano pexip-config.yaml
-```
-
-2. Sync the configuration to the active Management Node by running:
+### How to Download a Backup of your Configuration & State
+If you chose not to download the backup at the end of the script, or if you need to fetch it later, run this command to package and download your configuration and active Terraform state:
 
 ```bash
-./scripts/configure-platform.sh
+python3 -c "import zipfile, os; files=['terraform/terraform.tfstate', 'terraform/terraform.tfvars', 'pexip-config.yaml', 'pexip-deployment-info.md']; zipf=zipfile.ZipFile('pexip-backup.zip', 'w', zipfile.ZIP_DEFLATED); [zipf.write(f) for f in files if os.path.exists(f)]; zipf.close()" && cloudshell download pexip-backup.zip
 ```
-
-## Step 5: Teardown, Resume, or Recovery
-
-Keep these commands handy if you need to manage your deployment or if your Cloud Shell session gets disconnected:
 
 ### If your session disconnected (How to get back)
-If you walked away and the container recycled, locate your original deployment folder containing your active `terraform.tfstate` file:
+If your Cloud Shell session closes, locate the active deployment directory:
 
 ```bash
 for d in ~/cloudshell_open/pexip-quick-deploy*/; do [[ -f "$d/terraform/terraform.tfstate" ]] && echo "Active state found in: $d"; done

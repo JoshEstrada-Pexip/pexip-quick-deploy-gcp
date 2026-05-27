@@ -26,6 +26,46 @@ PEXIP_DEFAULT_CONF_IMAGE="pexip-infinity-conf-node-40-0-0-83304-0-0"
 # Source the modern UI helpers
 source "${REPO_ROOT}/scripts/ui.sh"
 
+# Offer the user to download a backup of config/state files via Cloud Shell download
+offer_backup() {
+  # Only offer backup if running in Google Cloud Shell (cloudshell command is on path)
+  if ! command -v cloudshell >/dev/null 2>&1; then
+    return
+  fi
+
+  echo
+  if ask_confirm "Would you like to download a backup of your configuration and state files?" "y"; then
+    echo
+    print_info "Packaging configuration and state files..."
+    local backup_zip="/tmp/pexip-deployment-backup.zip"
+    rm -f "$backup_zip"
+
+    # Use python's built-in zipfile library to ensure maximum compatibility/portability
+    python3 -c "
+import zipfile, os
+files = [
+    os.path.join('${TF_DIR}', 'terraform.tfstate'),
+    os.path.join('${TF_DIR}', 'terraform.tfvars'),
+    os.path.join('${REPO_ROOT}', 'pexip-config.yaml'),
+    os.path.join('${REPO_ROOT}', 'pexip-deployment-info.md')
+]
+with zipfile.ZipFile('${backup_zip}', 'w', zipfile.ZIP_DEFLATED) as zipf:
+    for f in files:
+        if os.path.exists(f):
+            zipf.write(f, os.path.relpath(f, '${REPO_ROOT}'))
+"
+
+    if [[ ! -f "$backup_zip" ]]; then
+      print_error "No configuration or state files found to back up."
+      return
+    fi
+
+    print_info "Downloading backup zip file..."
+    cloudshell download "$backup_zip"
+    print_success "Backup download initiated successfully!"
+  fi
+}
+
 # Run a command with a live spinner + elapsed counter. Captures stdout and
 # stderr to temp files (so we don't swallow auth prompts behind /dev/null
 # like the previous version did). After the command finishes, stdout is
@@ -768,6 +808,7 @@ if os.path.exists(yaml_path):
       print_error_banner "✖  Terraform Deployment Failed" \
                          "An error occurred that is not related to capacity." \
                          "$TEXT_RED"
+      offer_backup
       exit 1
     fi
   fi
@@ -777,6 +818,7 @@ if [[ $apply_ok -ne 1 ]]; then
   print_error_banner "✖  All Fallback Zones Exhausted" \
                      "No capacity was found in any of the zones in region ${region}." \
                      "$TEXT_RED"
+  offer_backup
   exit 1
 fi
 
@@ -820,6 +862,7 @@ print_final_summary() {
   print_info "Keep this file safe! It contains your login credentials and instructions"
   print_info "on how to back up your state file to run the destroy command later."
   echo
+  offer_backup
 }
 
 # Generate the downloadable deployment info summary markdown file
