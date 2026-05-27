@@ -31,6 +31,8 @@ Click the command block below to paste it into the Cloud Shell terminal, then pr
 
 ## Step 3: Automatic Base Configuration (Stage 2)
 
+![Stage 2 Configuration Sync](images/declare-screenshot.png)
+
 At the end of the deployment, the setup wizard will ask:
 `Automatically run configuration sync now?` (Stage 2).
 

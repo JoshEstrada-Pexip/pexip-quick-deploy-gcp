@@ -82,6 +82,8 @@ Password:   (the password you specified or that it generated during setup)
 
 ## Stage 2: Automatic Base Configuration (Declarative Sync)
 
+![Stage 2 Configuration Sync](images/declare-screenshot.png)
+
 At the end of the GCP infrastructure deployment, the setup wizard will prompt you:
 `Automatically run configuration sync now?` (Stage 2).
 
