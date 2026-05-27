@@ -7,7 +7,7 @@ Deploy a single-region Pexip Infinity cluster on Google Cloud Platform (GCP) wit
 ## Overview
 
 Before starting, choose the deployment mode that matches your testing goals:
-* **Simple Mode (Self-Signed):** Boots a single Conferencing Node in `us-west1-a` with a self-signed TLS certificate and auto-generated credentials (zero prompts - best for a quick test of the build).
+* **Simple Mode (Self-Signed):** Boots a single Conferencing Node in `us-west1` (using zone `a` and automatically falling back to `b` or `c` if capacity is unavailable) with a self-signed TLS certificate and auto-generated credentials (zero prompts - best for a quick test of the build).
 * **Simple - Licensed/TLS Mode (Recommended):** Uses simple defaults but automatically prompts for your Pexip trial/production license key and Cloudflare token to automatically provision browser-trusted Let's Encrypt certificates (best for testing TLS SIP calling immediately on completion).
 * **Advanced Mode:** Full interactive control to customize sizing, regions, zone letters, custom passwords, CIDR access blocks, and node counts.
 

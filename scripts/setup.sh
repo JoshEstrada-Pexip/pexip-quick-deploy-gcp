@@ -183,7 +183,7 @@ if [[ $setup_idx -eq 0 ]]; then
   echo
   echo -e "  ${TEXT_BOLD}${TEXT_PURPLE}Preparing Simple Deployment Defaults:${RESET}"
   echo -e "    ${TEXT_MUTED}Region:       ${RESET}us-west1 (Oregon)"
-  echo -e "    ${TEXT_MUTED}Zone Letter:  ${RESET}b"
+  echo -e "    ${TEXT_MUTED}Zone Letter:  ${RESET}a (auto-falls back to b/c)"
   echo -e "    ${TEXT_MUTED}Admin Access: ${RESET}0.0.0.0/0 (Any IP)"
   echo -e "    ${TEXT_MUTED}Nodes:        ${RESET}1 Conferencing Node"
   echo -e "    ${TEXT_MUTED}Node Sizing:  ${RESET}4 vCPU / 4 GB RAM (n2-highcpu-4)"
@@ -202,7 +202,7 @@ elif [[ $setup_idx -eq 1 ]]; then
   echo
   echo -e "  ${TEXT_BOLD}${TEXT_PURPLE}Preparing Simple - Licensed/TLS Deployment Defaults:${RESET}"
   echo -e "    ${TEXT_MUTED}Region:       ${RESET}us-west1 (Oregon)"
-  echo -e "    ${TEXT_MUTED}Zone Letter:  ${RESET}b"
+  echo -e "    ${TEXT_MUTED}Zone Letter:  ${RESET}a (auto-falls back to b/c)"
   echo -e "    ${TEXT_MUTED}Admin Access: ${RESET}0.0.0.0/0 (Any IP)"
   echo -e "    ${TEXT_MUTED}Nodes:        ${RESET}1 Conferencing Node"
   echo -e "    ${TEXT_MUTED}Node Sizing:  ${RESET}4 vCPU / 4 GB RAM (n2-highcpu-4)"

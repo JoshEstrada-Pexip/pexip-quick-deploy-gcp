@@ -58,7 +58,7 @@ Run the setup script [setup.sh](scripts/setup.sh) by executing:
 
 Select one of the following deployment modes in the wizard:
 
-* **Simple**: Zero inputs required. Instantly boots a single conferencing node in `us-west1-b` with self-signed TLS and an auto-generated admin password (printed at completion).
+* **Simple**: Zero inputs required. Instantly boots a single conferencing node in `us-west1` (using zone `a` and automatically falling back to `b` or `c` if capacity is unavailable) with self-signed TLS and an auto-generated admin password (printed at completion).
 * **Simple - Licensed/TLS**: Designed to be the fastest way to deploy Pexip Infinity end-to-end—fully licensed, secure, and ready for SIP TLS calling with valid CA certificates on completion, but remember you will need a Cloudflare domain. It uses all the automated Simple mode defaults (region, machine sizing, and generated credentials) but prompts you for:
   - **Pexip License Key**: Activates your trial or production entitlement.
   - **TLS Certificate Info**: Automatically provisions browser-trusted Let's Encrypt certificates using a Cloudflare-managed domain and API token.
@@ -231,7 +231,7 @@ Change directory into that folder and run [destroy.sh](scripts/destroy.sh) or [s
 | Error 409 alreadyExists            | Leftover resources from a previous aborted run. | Run[nuke.sh](scripts/nuke.sh) and try again.                                                          |
 | Connection refused to Google API   | Temporary Cloud Shell network blip.             | The script retries automatically. If it still fails, re-run `setup.sh`.                          |
 | Conf node shows red ring in UI     | ESP (IP protocol 50) is blocked between nodes.  | Ensure the internal firewall rule allows ESP.                                                      |
-| Apply hangs at Management Node API | Manager VM failed to apply metadata.            | Check serial logs:`gcloud compute instances get-serial-port-output pexip-mgr --zone=us-west1-b`. |
+| Apply hangs at Management Node API | Manager VM failed to apply metadata.            | Check serial logs:`gcloud compute instances get-serial-port-output pexip-mgr --zone=<deployed-zone>`. |
 
 </details>
 
@@ -242,7 +242,7 @@ Change directory into that folder and run [destroy.sh](scripts/destroy.sh) or [s
 | ------------------------- | ------------------------ | ----------------------------- |
 | Multiple regions          | No                       | Yes                           |
 | Proxy + Transcoding mix   | No (transcoding only)    | Yes                           |
-| Multiple system locations | No (single "default")    | Yes                           |
+| Multiple system locations | No (single "Primary")    | Yes                           |
 | Existing VPC / Shared VPC | No (always creates new)  | Yes                           |
 | Custom TLS certificates   | Staging / Prod ACME only | Custom / External TLS uploads |
 | Remote state backend      | Local only               | Yes                           |
