@@ -4,17 +4,16 @@
 
 Deploy a single-region Pexip Infinity cluster on Google Cloud Platform (GCP) without manual SSH setup or complex networking.
 
-### Understand Deployment Modes
-Before starting, choose the mode that matches your testing goals:
-* **Simple Mode (Self-Signed):** Boots a single Conferencing Node in `us-west1-b` with a self-signed TLS certificate and auto-generated credentials. (Zero prompts - best for a quick test of the GCE build).
-* **Simple - Licensed/TLS Mode (Recommended):** Uses all the Simple defaults but automatically prompts for your Pexip trial/production license key and Cloudflare token to automatically provision browser-trusted Let's Encrypt certificates. (Best for testing TLS SIP calling immediately on completion).
+## Overview
+
+Before starting, choose the deployment mode that matches your testing goals:
+* **Simple Mode (Self-Signed):** Boots a single Conferencing Node in `us-west1-a` with a self-signed TLS certificate and auto-generated credentials (zero prompts - best for a quick test of the build).
+* **Simple - Licensed/TLS Mode (Recommended):** Uses simple defaults but automatically prompts for your Pexip trial/production license key and Cloudflare token to automatically provision browser-trusted Let's Encrypt certificates (best for testing TLS SIP calling immediately on completion).
 * **Advanced Mode:** Full interactive control to customize sizing, regions, zone letters, custom passwords, CIDR access blocks, and node counts.
 
 Click **Start** to begin.
 
 ## Step 1: Choose your GCP project
-
-Create a new project to ensure that you have the permissions you need, or select an existing project in which you have the relevant permissions.
 
 <walkthrough-project-setup></walkthrough-project-setup>
 
