@@ -60,9 +60,9 @@ Password:   (Generated or custom password)
 2. If you used **Simple Mode** (self-signed certs), bypass the browser warning by clicking **Advanced > Proceed**. (For **Licensed/TLS Mode**, the page will load securely without warnings).
 3. Log in with your admin credentials.
 
-## Step 5: Backup, Teardown, or Recovery
+## Step 5: Backup or Recovery
 
-Keep these commands handy to manage, backup, or clean up your deployment:
+Keep these commands handy to manage, backup, or recover your deployment:
 
 ### How to Download a Backup of your Configuration & State
 If you chose not to download the backup at the end of the script, or if you need to fetch it later, run this command to package and download your configuration and active Terraform state:
@@ -82,6 +82,10 @@ for d in ~/cloudshell_open/pexip-quick-deploy*/; do [[ -f "$d/terraform/terrafor
 ```bash
 cd ~/cloudshell_open/pexip-quick-deploy-X
 ```
+
+## Step 6: Teardown or Force Nuke
+
+Use these commands to safely destroy your deployment or force-clean resources in your project:
 
 ### How to Teardown/Clean Destroy
 To safely destroy all resources and **automatically return/deactivate your licenses** to prevent locking them:
