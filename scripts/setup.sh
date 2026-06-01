@@ -37,7 +37,7 @@ offer_backup() {
   if ask_confirm "Would you like to download a backup of your configuration and state files?" "y"; then
     echo
     print_info "Packaging configuration and state files..."
-    local backup_zip="/tmp/pexip-deployment-backup.zip"
+    local backup_zip="${HOME}/pexip-deployment-backup.zip"
     rm -f "$backup_zip"
 
     # Use python's built-in zipfile library to ensure maximum compatibility/portability
