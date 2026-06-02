@@ -1,5 +1,6 @@
 # Pexip Quick Deploy for Google Cloud Platform
 
+[![CI](https://github.com/JoshEstrada-Pexip/pexip-quick-deploy-gcp/actions/workflows/ci.yml/badge.svg)](https://github.com/JoshEstrada-Pexip/pexip-quick-deploy-gcp/actions/workflows/ci.yml)
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-btn.svg)](https://shell.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/JoshEstrada-Pexip/pexip-quick-deploy-gcp.git&cloudshell_tutorial=tutorial.md&cloudshell_print=WELCOME.txt&shellonly=true)
 
 Deploying [Pexip Infinity](https://docs.pexip.com/admin/admin_intro.htm) can be a complex task. This project aims to simplify that by providing a ""couple-of-clicks" deployment method on Google Cloud Platform (GCP) using the built-in cloud shell. This tool handles copying the GCP images and bootstrapping the Management and Conference Nodes, avoiding the need to SSH and run the initial CLI installer. It will also provide the option to run a secondary script that provisions the platform with a "base configuration". Allowing for secure SIP calling out-of-the-box.
