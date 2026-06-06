@@ -252,11 +252,6 @@ data "external" "pexip_hashes" {
 # Management Node
 # ============================================================================
 
-resource "random_string" "manager_disk_key" {
-  length  = 32
-  special = true
-}
-
 resource "google_compute_instance" "manager" {
   name             = local.manager_hostname
   zone             = local.zone
@@ -268,7 +263,6 @@ resource "google_compute_instance" "manager" {
   }
 
   boot_disk {
-    disk_encryption_key_raw = base64encode(random_string.manager_disk_key.result)
     initialize_params {
       image = google_compute_image.management.self_link
       type  = "pd-ssd"
@@ -407,12 +401,6 @@ locals {
   ]
 }
 
-resource "random_string" "conf_disk_key" {
-  count   = var.transcoding_node_count
-  length  = 32
-  special = true
-}
-
 resource "google_compute_instance" "conf" {
   count            = var.transcoding_node_count
   name             = "${local.conf_hostname}-${count.index + 1}"
@@ -425,7 +413,6 @@ resource "google_compute_instance" "conf" {
   }
 
   boot_disk {
-    disk_encryption_key_raw = base64encode(random_string.conf_disk_key[count.index].result)
     initialize_params {
       image = google_compute_image.conferencing.self_link
       type  = "pd-ssd"
