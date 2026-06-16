@@ -7,8 +7,8 @@ Deploying [Pexip Infinity](https://docs.pexip.com/admin/admin_intro.htm) can be 
 
 NOTES:
 
-* This tool is a community tool, not licensed nor officially provided by Pexip. It has been modified to use modules from the [official Terraform Pexip Provider](https://registry.terraform.io/providers/pexip/pexip/latest/docs).
-* It uses the latest [official Pexip published GCP images](https://docs.pexip.com/admin/gcp_disk_images.htm#obtain) which are v.40 at the time of publishing this. Image names/versions can be easily modified inside the terraform.tfvars file.
+- This tool is a community tool, not licensed nor officially provided by Pexip. It has been modified to use modules from the [official Terraform Pexip Provider](https://registry.terraform.io/providers/pexip/pexip/latest/docs).
+- It uses the latest [official Pexip published GCP images](https://docs.pexip.com/admin/gcp_disk_images.htm#obtain) which are v.40 at the time of publishing this. Image names/versions can be easily modified inside the terraform.tfvars file.
 
 ---
 
@@ -16,28 +16,29 @@ NOTES:
 
 ### 1. GCP Project & IAM Permissions
 
-* **GCP Project**: A Google Cloud project with **billing enabled**.
-* **IAM Permissions**: The user (or identity) running the deployment needs:
-  * **Standard Option:** The **Project Editor** (`roles/editor`) or **Project Owner** role.
-  * **Least-Privilege Option:** If you require restricted permissions, grant the following standard GCP roles:
-    * **Compute Admin** (`roles/compute.admin`)
-    * **Service Account Admin** (`roles/iam.serviceAccountAdmin`)
-    * **Service Account User** (`roles/iam.serviceAccountUser`)
-    * **Service Usage Admin** (`roles/serviceusage.serviceUsageAdmin`) *(only needed to automatically enable the required Compute/IAM APIs)*
+- **GCP Project**: A Google Cloud project with **billing enabled**.
+- **IAM Permissions**: The user (or identity) running the deployment needs:
+  - **Standard Option:** The **Project Editor** (`roles/editor`) or **Project Owner** role.
+  - **Least-Privilege Option:** If you require restricted permissions, grant the following standard GCP roles:
+    - **Compute Admin** (`roles/compute.admin`)
+    - **Service Account Admin** (`roles/iam.serviceAccountAdmin`)
+    - **Service Account User** (`roles/iam.serviceAccountUser`)
+    - **Service Usage Admin** (`roles/serviceusage.serviceUsageAdmin`) _(only needed to automatically enable the required Compute/IAM APIs)_
+    - Ading this line
 
 ### 2. Execution Environment
 
-* **Google Cloud Shell (Recommended):** Zero setup required. All dependencies (`gcloud`, `terraform`, `curl`, `python3`) are pre-installed.
-* **Local Machine (macOS/Linux):** You must install the `gcloud` CLI (pre-authenticated), Terraform CLI (v1.0.0+), `curl`, and `python3`.
-  * *Note for macOS / Python 3.13+:* If deploying locally, install `passlib` to support password hashing: `pip install passlib`.
+- **Google Cloud Shell (Recommended):** Zero setup required. All dependencies (`gcloud`, `terraform`, `curl`, `python3`) are pre-installed.
+- **Local Machine (macOS/Linux):** You must install the `gcloud` CLI (pre-authenticated), Terraform CLI (v1.0.0+), `curl`, and `python3`.
+  - _Note for macOS / Python 3.13+:_ If deploying locally, install `passlib` to support password hashing: `pip install passlib`.
 
 ### 3. Pexip License
 
-* A Pexip Infinity license (request a free 30-day trial at [https://developer.pexip.com/request-developer-license/](https://developer.pexip.com/request-developer-license/)).
+- A Pexip Infinity license (request a free 30-day trial at [https://developer.pexip.com/request-developer-license/](https://developer.pexip.com/request-developer-license/)).
 
 ### 4. Optional Cloudflare Token (For Let's Encrypt TLS)
 
-* A domain managed in Cloudflare and a Cloudflare API Token with `Zone.DNS:Edit` permissions. Cloudflare is the only DNS provider supported in this initial release, but other DNS providers can be added using offical Terraform providers and modules. I plan to add more soon.
+- A domain managed in Cloudflare and a Cloudflare API Token with `Zone.DNS:Edit` permissions. Cloudflare is the only DNS provider supported in this initial release, but other DNS providers can be added using offical Terraform providers and modules. I plan to add more soon.
 
 ---
 
@@ -59,11 +60,11 @@ Run the setup script [setup.sh](scripts/setup.sh) by executing:
 
 Select one of the following deployment modes in the wizard:
 
-* **Simple**: Zero inputs required. Instantly boots a single conferencing node in `us-west1` (using zone `a` and automatically falling back to `b` or `c` if capacity is unavailable) with self-signed TLS and an auto-generated admin password (printed at completion).
-* **Simple - Licensed/TLS**: Designed to be the fastest way to deploy Pexip Infinity end-to-end—fully licensed, secure, and ready for SIP TLS calling with valid CA certificates on completion, but remember you will need a Cloudflare domain. It uses all the automated Simple mode defaults (region, machine sizing, and generated credentials) but prompts you for:
+- **Simple**: Zero inputs required. Instantly boots a single conferencing node in `us-west1` (using zone `a` and automatically falling back to `b` or `c` if capacity is unavailable) with self-signed TLS and an auto-generated admin password (printed at completion).
+- **Simple - Licensed/TLS**: Designed to be the fastest way to deploy Pexip Infinity end-to-end—fully licensed, secure, and ready for SIP TLS calling with valid CA certificates on completion, but remember you will need a Cloudflare domain. It uses all the automated Simple mode defaults (region, machine sizing, and generated credentials) but prompts you for:
   - **Pexip License Key**: Activates your trial or production entitlement.
   - **TLS Certificate Info**: Automatically provisions browser-trusted Let's Encrypt certificates using a Cloudflare-managed domain and API token.
-* **Advanced**: Provides full interactive control to customize the GCP region, machine sizing, instance counts, admin access IP restrictions, password credentials, and optional custom image overrides or TLS config.
+- **Advanced**: Provides full interactive control to customize the GCP region, machine sizing, instance counts, admin access IP restrictions, password credentials, and optional custom image overrides or TLS config.
 
 ![Advanced Setup Mode](images/cloudshell2.png)
 
@@ -88,8 +89,8 @@ Password:   (the password you specified or that it generated during setup)
 At the end of the GCP infrastructure deployment, the setup wizard will prompt you:
 `Automatically run configuration sync now?` (Stage 2).
 
-* **Automatic Sync (Recommended)**: Choosing **Yes** automatically registers your license and provisions base resources—Virtual Meeting Rooms (VMRs), Dial Plans, test users, and aliases—using the pre-configured `pexip-config.yaml` file, without requiring manual setup in the Pexip Administrator Web UI.
-* **Manual / Custom Sync**: If you skipped the sync during setup, or if you want to update your platform configuration later:
+- **Automatic Sync (Recommended)**: Choosing **Yes** automatically registers your license and provisions base resources—Virtual Meeting Rooms (VMRs), Dial Plans, test users, and aliases—using the pre-configured `pexip-config.yaml` file, without requiring manual setup in the Pexip Administrator Web UI.
+- **Manual / Custom Sync**: If you skipped the sync during setup, or if you want to update your platform configuration later:
 
 ### 1. (Optional) Customize Settings
 
@@ -154,17 +155,17 @@ To deploy Conferencing Nodes with internal-only IPs (for VPN or VPC peering envi
 
 Here is the list of prompts presented by [setup.sh](scripts/setup.sh) (some may be bypassed depending on your chosen deployment mode):
 
-| Prompt                       | Default               | Description / Notes                                                                                     |
-| ---------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------- |
-| GCP project ID               | (Pre-filled)          | GCP project for resources (all modes).                                                                  |
-| Select Deployment Mode       | `Simple`            | Choose between `Simple`, `Simple - Licensed/TLS`, and `Advanced`.                                 |
+| Prompt                       | Default             | Description / Notes                                                                                     |
+| ---------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------- |
+| GCP project ID               | (Pre-filled)        | GCP project for resources (all modes).                                                                  |
+| Select Deployment Mode       | `Simple`            | Choose between `Simple`, `Simple - Licensed/TLS`, and `Advanced`.                                       |
 | Primary region               | `us-west1`          | Region for the network and VMs (Advanced mode only).                                                    |
-| Admin UI CIDR                | (Blank)               | Laptop IP as `<ip>/32`. Blank allows all IPs (0.0.0.0/0) (Advanced mode only).                        |
+| Admin UI CIDR                | (Blank)             | Laptop IP as `<ip>/32`. Blank allows all IPs (0.0.0.0/0) (Advanced mode only).                          |
 | Number of Conferencing Nodes | `1`                 | Number of worker nodes to spin up (Advanced mode only).                                                 |
-| Admin password               | (None)                | Password for the admin portal and SSH (Advanced mode only).                                             |
+| Admin password               | (None)              | Password for the admin portal and SSH (Advanced mode only).                                             |
 | Contact email                | `admin@example.com` | Metadata contact email (Advanced mode only).                                                            |
-| Pexip image versions         | (Latest)              | Auto-detected from Pexip's registry (Advanced mode only).                                               |
-| Pexip License Key            | (Blank)               | Entitlement/License key for auto-activation (Simple - Licensed/TLS and Advanced modes).                 |
+| Pexip image versions         | (Latest)            | Auto-detected from Pexip's registry (Advanced mode only).                                               |
+| Pexip License Key            | (Blank)             | Entitlement/License key for auto-activation (Simple - Licensed/TLS and Advanced modes).                 |
 | Let's Encrypt + Cloudflare   | `N`                 | Enable trusted TLS (requires Cloudflare DNS domain + token) (Simple - Licensed/TLS and Advanced modes). |
 
 </details>
@@ -176,10 +177,10 @@ Here is the list of prompts presented by [setup.sh](scripts/setup.sh) (some may 
 
 ### Deployed Resources
 
-* A new VPC, subnet, and firewall rules for SIP, H.323, RTP media, and admin access.
-* Reserved public and internal IPs for every node.
-* A pre-configured Pexip Management Node and one or more registered Conferencing Nodes.
-* Optionally: Let's Encrypt certificates uploaded and assigned to the nodes.
+- A new VPC, subnet, and firewall rules for SIP, H.323, RTP media, and admin access.
+- Reserved public and internal IPs for every node.
+- A pre-configured Pexip Management Node and one or more registered Conferencing Nodes.
+- Optionally: Let's Encrypt certificates uploaded and assigned to the nodes.
 
 </details>
 
@@ -213,36 +214,34 @@ Change directory into that folder and run [destroy.sh](scripts/destroy.sh) or [s
 
 ### Common Failure Modes
 
-| Symptom                            | Cause                                           | Solution                                                                                           |
-| ---------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Symptom                            | Cause                                           | Solution                                                                                              |
+| ---------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Error 409 alreadyExists            | Leftover resources from a previous aborted run. | Run[nuke.sh](scripts/nuke.sh) and try again.                                                          |
-| Connection refused to Google API   | Temporary Cloud Shell network blip.             | The script retries automatically. If it still fails, re-run `setup.sh`.                          |
-| Conf node shows red ring in UI     | ESP (IP protocol 50) is blocked between nodes.  | Ensure the internal firewall rule allows ESP.                                                      |
+| Connection refused to Google API   | Temporary Cloud Shell network blip.             | The script retries automatically. If it still fails, re-run `setup.sh`.                               |
+| Conf node shows red ring in UI     | ESP (IP protocol 50) is blocked between nodes.  | Ensure the internal firewall rule allows ESP.                                                         |
 | Apply hangs at Management Node API | Manager VM failed to apply metadata.            | Check serial logs:`gcloud compute instances get-serial-port-output pexip-mgr --zone=<deployed-zone>`. |
 
 </details>
 
-
-
 <details>
 <summary>Repository Layout</summary>
 
-* [README.md](README.md)
-* [WELCOME.txt](WELCOME.txt) - Printed on Cloud Shell open
-* [tutorial.md](tutorial.md) - Cloud Shell walkthrough tutorial
-* `scripts/`
-  * [setup.sh](scripts/setup.sh) - Interactive deploy script
-  * [destroy.sh](scripts/destroy.sh) - Tear down via Terraform
-  * [nuke.sh](scripts/nuke.sh) - Force tear down via gcloud
-  * [keep-alive.sh](scripts/keep-alive.sh) - Defeats Cloud Shell idle timeout
-  * [generate-hashes.sh](scripts/generate-hashes.sh) - Password hash generator
-  * [register-conf-nodes.sh](scripts/register-conf-nodes.sh) - Node registration helper
-  * [install-cert.sh](scripts/install-cert.sh) - Certificate installation helper
-* `terraform/`
-  * [main.tf](terraform/main.tf) - Infrastructure resources
-  * [variables.tf](terraform/variables.tf)
-  * [outputs.tf](terraform/outputs.tf)
-  * [versions.tf](terraform/versions.tf)
+- [README.md](README.md)
+- [WELCOME.txt](WELCOME.txt) - Printed on Cloud Shell open
+- [tutorial.md](tutorial.md) - Cloud Shell walkthrough tutorial
+- `scripts/`
+  - [setup.sh](scripts/setup.sh) - Interactive deploy script
+  - [destroy.sh](scripts/destroy.sh) - Tear down via Terraform
+  - [nuke.sh](scripts/nuke.sh) - Force tear down via gcloud
+  - [keep-alive.sh](scripts/keep-alive.sh) - Defeats Cloud Shell idle timeout
+  - [generate-hashes.sh](scripts/generate-hashes.sh) - Password hash generator
+  - [register-conf-nodes.sh](scripts/register-conf-nodes.sh) - Node registration helper
+  - [install-cert.sh](scripts/install-cert.sh) - Certificate installation helper
+- `terraform/`
+  - [main.tf](terraform/main.tf) - Infrastructure resources
+  - [variables.tf](terraform/variables.tf)
+  - [outputs.tf](terraform/outputs.tf)
+  - [versions.tf](terraform/versions.tf)
 
 </details>
 
